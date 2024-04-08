@@ -1,0 +1,41 @@
+{
+  "name": "e-inkdashboardmodern",
+  "version": "0.0.0",
+  "description": "E-InkDashboardModern SignalK Edition is a aimed at devices with e-ink screen web  application that shows in the browser the main parameters of the ship's movement",
+  "main": "index.js",
+  "author": "Vladimir Kalachikhin",
+  "license": "CC-BY-SA-4.0",
+  "keywords": [
+    "signalk-node-server-plugin",
+    "signalk-webapp",
+    "signalk-category-instruments",
+    "e-ink"
+  ],
+  "homepage": "https://github.com/VladimirKalachikhin/e-inkDashboardModernSK#readme",
+  "bugs": {
+    "url": "https://github.com/VladimirKalachikhin/e-inkDashboardModernSK/issues",
+    "email": "galadrielmap@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VladimirKalachikhin/e-inkDashboardModernSK"
+  },
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://sobe.ru/na/galadrielmap"
+    }
+  ],
+  "files": [
+    "screenshots/",
+    "public/"
+  ],
+  "dependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "signalk": {
+    "appIcon": "./img/fav.png",
+    "displayName": "e-inkDashboardModern SignalK edition"
+  }
+}

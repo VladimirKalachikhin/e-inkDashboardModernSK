@@ -1,0 +1,360 @@
+body {
+	--out-width: 88vmin; /* * 1% of the viewport's smaller dimension */
+	--font-size: calc(var(--out-width)/8);	/* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries */
+	--small-font-size: calc(var(--font-size)*0.7);	/* если сказать em, то величиной будет em, а не вычисленное в этот момент значение. Поэтому -- вычисляется */
+	--ltl-font-size: calc(var(--font-size)*0.4);
+	--ltl1-font-size: calc(var(--font-size)*0.3);
+	--pico-font-size: calc(var(--font-size)*0.2);
+
+	display: grid;
+	grid-template-columns: 5% 30% 30% 30% 5%;	/* это проценты имеющейся ширины body */
+	/*grid-template-rows: calc(100vh*0.045) 30% 30% 30% calc(100vh*0.045);	/* почему-то, если указать % в крайних строках, то пространство исчезает, если там нет объекта. А если указать число -- остаётся. */
+	grid-template-rows: calc(100vh*0.045) 1fr 1fr 1fr calc(100vh*0.045);	/* почему-то, если указать % в крайних строках, то пространство исчезает, если там нет объекта. А если указать число -- остаётся. */
+	/* А это проценты от вычисленого размера compass, хотя они и должны совпадать с высотой ландшафтного экрана. */
+	/*grid-template-rows: calc(var(--out-width)*0.05) calc(var(--out-width)*0.3) calc(var(--out-width)*0.3) calc(var(--out-width)*0.3) calc(var(--out-width)*0.05);*/
+	font-size: var(--font-size);
+}
+/* Стили блоков данных */
+#topMessage {
+	grid-column-start: 2;
+	grid-column-end: 5;
+	grid-row-start: 1;
+	grid-row-end: 2;
+	font-size: calc(var(--out-width)*0.03);
+	text-align: center;
+	
+	/*display:inherit; border:solid green;*/
+}
+#compassMessage {
+	grid-column-start: 3;
+	grid-column-end: 4;
+	grid-row-start: 3;
+	grid-row-end: 4;
+	margin: auto;
+	/*font-size: var(--small-font-size);*/
+	font-size: 0.5em;
+	text-align: center;
+	
+	/*display:inherit; border:solid green;*/
+}
+#bottomMessage {
+	grid-column-start: 2;
+	grid-column-end: 5;
+	grid-row-start: 5;
+	grid-row-end: 6;
+	font-size: calc(var(--out-width)*0.03);
+	text-align: center;
+	/*display:inherit; border:solid green;*/
+}
+
+#leftTopBlock {
+	grid-column-start: 1;
+	grid-column-end: 3;
+	grid-row-start: 2;
+	grid-row-end: 3;
+	font-size: calc(var(--font-size)*1.4);
+	text-align: left;
+	line-height: 0.7;
+	height: fit-content;
+	/*align-self: start;	это умолчальное значение */
+
+	/*border:solid green;*/
+}
+.leftTopBlockBig {
+	grid-column-end: 4 !important;
+	grid-row-end: 4 !important;
+	/*font-size: calc(var(--font-size)*2.8) !important;*/
+	font-size: 3em !important;
+
+	/*border:solid green;*/
+}
+#rightTopBlock {
+	grid-column-start: 4;
+	grid-column-end: 6;
+	grid-row-start: 2;
+	grid-row-end: 3;
+	/*font-size: var(--font-size);*/
+	font-size: calc(var(--font-size)*1.4);
+	text-align: right;
+	line-height: 0.7;
+	height: fit-content;
+	/*align-self: start;	это умолчальное значение */
+
+	/*border:solid green;*/
+}
+.rightTopBlockBig {
+	grid-column-start: 3 !important;
+	grid-row-end: 4 !important;
+	font-size: 3em !important;
+
+	/*border:solid green;*/
+}
+
+#leftBottomBlock {
+	grid-column-start: 1;
+	grid-column-end: 3;
+	grid-row-start: 4;
+	grid-row-end: 5;
+	font-size: calc(var(--font-size)*1.4);
+	text-align: left;
+	display: inherit; 
+	line-height: 0.7;
+	height: fit-content;
+	align-self: end;
+
+	/*border:solid green;*/
+}
+.leftBottomBlockBig {
+	grid-column-end: 4 !important;
+	grid-row-start: 3 !important;
+	font-size: 3em !important;
+
+	/*border:solid green;*/
+}
+#rightBottomBlock {
+	grid-column-start: 4;
+	grid-column-end: 6;
+	grid-row-start: 4;
+	grid-row-end: 5;
+	font-size: calc(var(--font-size)*1.4);
+	text-align: right;
+	display: inherit; 
+	line-height: 0.7;
+	height: fit-content;
+	align-self: end;
+
+	/*border:solid green;*/
+}
+.rightBottomBlockBig {
+	grid-column-start: 3 !important;
+	grid-row-start: 3 !important;
+	font-size: 3em !important;
+	/*border:solid green;*/
+}
+
+.rightBottomFrameBlinker {
+	padding: 0 0.05em 0.05em 0;
+	border-width: 0 0.1em 0.1em 0;
+	border-style: none  solid solid none;
+	animation: frameblinker 3s step-start infinite;
+}
+.leftBottomFrameBlinker {
+	padding: 0 0 0.05em 0.05em;
+	border-width: 0 0 0.1em 0.1em;
+	border-style: none none solid solid;
+	animation: frameblinker 3s step-start infinite;
+}
+@keyframes frameblinker{
+	50% { border-color: white; }
+}
+
+/* стили компаса */
+#compass {
+	--center-icon-size: calc(var(--out-width)/4);
+	--collisionArrowWidthBig: var(--center-icon-size);
+	--collisionArrowLeftBig: calc(var(--out-width)/2 - var(--collisionArrowWidthBig)/2);
+	--collisionArrowWidthNormal: calc(var(--collisionArrowWidthBig)*0.75);
+	--collisionArrowLeftNormal: calc(var(--out-width)/2 - var(--collisionArrowWidthNormal)/2);
+	--collisionArrowWidthSmall: calc(var(--collisionArrowWidthBig)*0.5);
+	--collisionArrowLeftSmall: calc(var(--out-width)/2 - var(--collisionArrowWidthSmall)/2);
+	--collisionArrowWidthLitle: calc(var(--collisionArrowWidthBig)*0.3);
+	--collisionArrowLeftLitle: calc(var(--out-width)/2 - var(--collisionArrowWidthLitle)/2);
+	
+	/*border: solid red;*/
+	
+	container-type: inline-size;	/*  */
+	width: var(--out-width);
+	height: var(--out-width);
+	grid-column-start: 2;
+	grid-column-end: 5;
+	grid-row-start: 2;
+	grid-row-end: 5;
+	margin: auto;
+
+}
+/* стили картушки компаса */
+.compass-card {
+	border: solid black;
+	container-type: inline-size;
+	width: var(--out-width);
+	height: var(--out-width);
+	border-radius: 50%;
+	font-family: MonoSpace;
+}
+.compas-face-scale {
+	position: static !important;
+	height: fit-content !important;
+	width: auto !important;
+	font-size: var(--pico-font-size);
+}
+.compass-face div {
+	/*border: solid red;*/
+
+	position: absolute;
+
+	height: calc(var(--out-width)/2);
+	width: calc(var(--font-size)*2);	/* три ширины символа: (--font-size * 2 / 3) * 3 */
+	top: 0;	/*поскольку высота равна радиусу, низ "спицы" будет в центре окружности .compass*/
+	left: calc(var(--out-width)/2 - var(--font-size));	/*ширина - 1/2 ширины строки*/
+	text-align: center;
+	transform-origin: bottom center;	/* относительно чего вращать */
+}
+
+.charN { 
+}
+.charNNE { 
+	font-size: var(--ltl-font-size);
+	transform: rotate(22.5deg); 
+}
+.charNE { 
+	font-size: var(--small-font-size);
+	transform: rotate(45deg); 
+}
+.charENE { 
+	font-size: var(--ltl-font-size);
+	transform: rotate(67.5deg); 
+}
+.charE { 
+	transform: rotate(90deg); 
+}
+.charESE { 
+	font-size: var(--ltl-font-size);
+	transform: rotate(112.5deg); 
+}
+.charSE { 
+	font-size: var(--small-font-size);
+	transform: rotate(135deg); 
+}
+.charSSE { 
+	font-size: var(--ltl-font-size);
+	transform: rotate(157.5deg); 
+}
+.charS { 
+	transform: rotate(180deg); 
+}
+.charSSW { 
+	font-size: var(--ltl-font-size);
+	transform: rotate(202.5deg); 
+}
+.charSW { 
+	font-size: var(--small-font-size);
+	transform: rotate(225deg); 
+}
+.charWSW { 
+	font-size: var(--ltl-font-size);
+	transform: rotate(247.5deg); 
+}
+.charW { 
+	transform: rotate(270deg); 
+}
+.charWNW { 
+	font-size: var(--ltl-font-size);
+	transform: rotate(292.5deg); 
+}
+.charNW { 
+	font-size: var(--small-font-size);
+	transform: rotate(315deg); 
+}
+.charNNW { 
+	font-size: var(--ltl-font-size);
+	transform: rotate(337.5deg); 
+}
+#center_marc_streak{
+	/*border: solid red;*/
+
+	height: var(--out-width);
+	width: auto;
+
+	position: absolute;
+	top: 2px;
+	left: calc(var(--out-width)/2 + 2px);
+}
+
+/* Центральная картинка */
+#center_icon {
+	/*border: solid red;*/
+
+	height: var(--center-icon-size);
+	width: var(--center-icon-size);
+
+	position: absolute;
+	top: calc(var(--out-width)/2 - var(--center-icon-size)/2);
+	left: calc(var(--out-width)/2 - var(--center-icon-size)/2 + 3px);
+}
+#windSVGimage {
+	/*border: solid red;*/
+
+	width: calc(var(--out-width)/2 - var(--pico-font-size));
+
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform-origin: top left;	/* относительно чего вращать */
+}
+
+#collisionArrows div {
+	/*border: solid red;*/
+	
+	position: absolute;
+	height: calc(var(--out-width)/2 - var(--ltl-font-size));
+	width: var(--collisionArrowWidthBig);
+	top: var(--ltl-font-size);
+	left: var(--collisionArrowLeftBig);
+	
+	transform-origin: bottom center;	/* относительно чего вращать */
+}
+.collisionArrowImg {
+	/*border: solid green;*/
+	width: 100%;
+	vertical-align: top;
+}
+
+#mobMark {
+	/*border: solid red;*/
+	
+	position: absolute;
+	height: calc(var(--out-width)/2);
+	width: var(--collisionArrowWidthSmall);
+	top: 0;
+	left: var(--collisionArrowLeftSmall);
+	
+	transform-origin: bottom center;	/* относительно чего вращать */
+}
+#mobMark img{
+	position: relative;
+	top: calc(0px - var(--collisionArrowWidthSmall)*0.5);
+	width: 100%;
+	vertical-align: top;
+}
+
+#nextPointDirection {
+	/*border: solid red;*/
+	
+	position: absolute;
+	height: calc(var(--out-width)/2);
+	width: calc(var(--collisionArrowWidthLitle)*0.8);
+	top: 0;
+	left: calc(var(--collisionArrowLeftLitle)*1.02);
+	
+	transform-origin: bottom center;	/* относительно чего вращать */
+}
+#nextPointDirection svg {
+	/*border: solid green;*/
+	position: relative;
+	top: calc(0px - var(--collisionArrowWidthLitle)*0.25);
+	width: 100%;
+	vertical-align: top;
+}
+
+
+
+.blink{	
+	animation: blinker 1s step-start infinite;
+}
+@keyframes blinker{
+	50% { opacity: 0; }
+}
+
+.opa {
+	opacity: 25%;
+}

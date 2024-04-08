@@ -1,0 +1,231 @@
+<!DOCTYPE html >
+<html>
+<head>
+	<LINK href="common.css" rel="stylesheet" type="text/css">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<META http-equiv="Content-Script-Type" content="text/javascript">
+	<script src="internationalisation.js"></script><!-- обязательно в начале, для инициализации переменных -->
+	<script src="fCommon.js"></script>
+	<script src="options.js"></script><!-- обязательно в конце, чтобы уже были упомянутые там переменные -->
+	<title>e-inkDashboardModern</title>
+</head>
+<body>
+<div id="topMessage">
+</div>
+<div id="compassMessage">
+</div>
+<div id="bottomMessage">
+</div>
+<div id="leftTopBlock" onclick="bigBlock(this,'leftTopBlockBig');" style="display:none;">
+</div>
+<div id="rightTopBlock" onclick="bigBlock(this,'rightTopBlockBig');" style="display:none;">
+</div>
+<div id="leftBottomBlock" onclick="bigBlock(this,'leftBottomBlockBig');" style="display:none;">
+</div>
+<div id="rightBottomBlock" onclick="bigBlock(this,'rightBottomBlockBig');" style="display:none;">
+</div>
+<div id="compass">
+	<div id="center_icon">
+		<svg xml:space="default" version="1.1" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+			<path fill="none" stroke="black" stroke-width="10px" d="M70 125 L 70 245 180 245 180 125 Q 180 65 125 10 70 70 70 125"/>
+		</svg>
+		<svg version="1.1" id="windSVGimage" viewBox="0 0 302 50" xmlns="http://www.w3.org/2000/svg">
+			<!--  
+			Ширина штрихов - 10
+			-->
+			<defs>
+				<polyline id="bLine" points="110,2 30,2 30,12 110,12" stroke="black" stroke-width="2" />
+				<polyline id="w2dt5" points="0,2 15,22 25,22 10,2" />
+				<polyline id="w5" points="0,2 25,32 35,32 10,2" />
+				<polyline id="w25" points="0,2 25,32 40,2" />
+				<line id="hbl" x1="0" y1="2" x2="10" y2="2" />
+				<line id="vbl" x1="0" y1="2" x2="0" y2="12" />
+			</defs>
+			<g id="wMark" stroke="black" stroke-width="2" fill="none">
+			</g>
+		</svg>
+	</div>
+	<div id="center_marc">
+		<svg id="center_marc_streak" xml:space="default" version="1.1" viewBox="0 0 4 300" xmlns="http://www.w3.org/2000/svg">
+			<line fill="none" stroke="black" stroke-width="3px" x1="0" y1="10" x2="0" y2="110"></line>
+			<line fill="none" stroke="black" stroke-width="3px" x1="0" y1="190" x2="0" y2="290"></line>
+		</svg>
+		<div class="compass-card" id="compassCard">
+			<div class="compass-face">
+				<div class="charN"><div class="compas-face-scale">0</div>N<br>|</div>
+				<div class="charNNE"><div class="compas-face-scale">22.5</div>NNE<br>|</div>
+				<div class="charNE"><div class="compas-face-scale">45</div>NE<br>|</div>
+				<div class="charENE"><div class="compas-face-scale">67.5</div>ENE<br>|</div>
+				<div class="charE"><div class="compas-face-scale">90</div>E<br>|</div>
+				<div class="charESE"><div class="compas-face-scale">112.5</div>ESE<br>|</div>
+				<div class="charSE"><div class="compas-face-scale">135</div>SE<br>|</div>
+				<div class="charSSE"><div class="compas-face-scale">157.5</div>SSE<br>|</div>
+				<div class="charS"><div class="compas-face-scale">180</div>S<br>|</div>
+				<div class="charSSW"><div class="compas-face-scale">202.5</div>SSW<br>|</div>
+				<div class="charSW"><div class="compas-face-scale">225</div>SW<br>|</div>
+				<div class="charWSW"><div class="compas-face-scale">247.5</div>WSW<br>|</div>
+				<div class="charW"><div class="compas-face-scale">270</div>W<br>|</div>
+				<div class="charWNW"><div class="compas-face-scale">292.5</div>WNW<br>|</div>
+				<div class="charNW"><div class="compas-face-scale">315</div>NW<br>|</div>
+				<div class="charNNW"><div class="compas-face-scale">337.5</div>NNW<br>|</div>
+			</div>
+			<div id="collisionArrows">
+			</div>
+				<div id="collisionArrow" style="display:none;">
+					<img class="collisionArrowImg" src="img/arrow.svg">
+				</div>
+			<div id="mobMark" style="display:none;">
+				<img class="blink" src="img/mob.svg">
+			</div>
+			<div id="nextPointDirection" style="display:none;">
+				<svg version="1.1" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+					<polygon fill="black" stroke="black" points="1,1 5,9 9,1" />
+				</svg>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+//compassCard.style.transform = 'rotate(30deg)';
+//console.log(displayData);
+
+var mobPosition=null;	// информация о режиме MOB: маркер из GaladrilMap или что-то ещё
+
+var tpv = {};
+var mobPosition = {};
+var socket;
+
+if(displayData.wangle && displayData.wangle.trueWind) {	// если ветер истинный
+	compassCard.appendChild(windSVGimage);	// переставим символ ветра в картушку
+}
+
+const uri = `ws://${document.location.host}/signalk/v1/stream?subscribe=none`; 	// подписываться будем отдельно
+doWebsocked(uri) //	запускаем прослушивание сокета и обработку полученного
+
+
+
+function doWebsocked(uri){
+socket = new WebSocket(uri);
+socket.onopen = websocketOnOpen;
+socket.onmessage = websocketOnMessage;
+socket.onclose = websocketOnClose;
+socket.onerror = websocketOnError;
+} // end function doWebsocked
+
+
+function websocketOnOpen(event) {
+/**/
+// формируем подписку
+let signalKsubscribe = {
+	"context": "vessels.self",
+	"subscribe": []
+};
+for(let tpvName in displayData){	// displayData is in options.js
+	signalKsubscribe.subscribe.push({
+		"path": displayData[tpvName].signalkPath,
+		"format": "delta",
+		"policy": "instant",
+		"minPeriod": displayData[tpvName].maxRefreshInterval
+	});
+}
+//console.log('[websocketOnOpen] signalKsubscribe:',signalKsubscribe);
+event.target.send(JSON.stringify(signalKsubscribe));	// подписываемся
+console.log("Winsocket open: Connection establish with "+uri);
+displayON();
+display();
+}; // end function websocketOnOpen
+
+
+function websocketOnMessage(event) {
+//console.log(event);
+// Получаем исходные данные
+let SKdata;
+try {
+	SKdata = JSON.parse(event.data);	// но просто строка -- это корректный json, и никаких ошибок не будет, если сервер вернул не json
+	if(!SKdata) throw Error('inbound empty');
+	if(typeof SKdata !== 'object')  throw Error('inbound not a object: '+SKdata);
+}
+catch(error) {
+	console.log('Parsing inbound data error: ',error.message);
+	tpv = {};
+	mobPosition = {};
+	display();
+	return;
+}
+//console.log(`[message] Данные получены с сервера: `,SKdata);
+if(SKdata.roles) { 	// greeting
+	return;
+}
+// Берём нужные данные
+let changedTPV = [];	// список ключей tpv, значения которых получили изменения, для обновления их в интерфейсе
+let checksTPV = [];	// список ключей tpv, для которых запущен setInterval контроля свежести
+for(let props of SKdata.updates){
+	if(!props.values) continue;	// я не знаю, когда и почему вдруг может не быть. Но -- не бывает
+	for(let prop of props.values) {
+		//console.log('[websocketOnMessage] prop:',prop);
+
+		bytpvName: for(let tpvName in displayData){	// displayData is in options.js
+			if(prop.path != displayData[tpvName].signalkPath) continue;
+			// Проверка на null
+			if(displayData.dataPaths){
+				for(const dataPath in displayData.dataPaths){
+					if(isValueNull(tpvName+'.'+dataPath,prop.value[dataPath])) {	// следует ли трактовать 0 как null
+						console.log('Property',tpvName+'.'+dataPath,'is interpreted as null instead 0');
+						prop.value[dataPath] = null;
+					}
+				}
+			}
+			else {
+				if(isValueNull(tpvName,prop.value)) {	// следует ли трактовать 0 как null
+					console.log('Property',tpvName,'is interpreted as null instead 0');
+					prop.value = null;
+				}
+			}
+			// Проверка на свежесть
+			if(!tpv[tpvName]) {
+				tpv[tpvName] = {};
+				// Запускаем очистку данных от устаревших
+				checksTPV[tpvName] = window.setInterval(chkTPV, displayData[tpvName].fresh-1, tpvName, checksTPV);
+			}
+			//console.log('[websocketOnMessage] tpvName=',tpvName,'prop.path=',prop.path,'prop.value:',prop.value,'displayData[tpvName].multiplicator)=',displayData[tpvName].multiplicator);
+			// Приведение к нормальным размерностям
+			if((prop.value !== null) && displayData[tpvName].multiplicator) tpv[tpvName].value =  prop.value * displayData[tpvName].multiplicator
+			else tpv[tpvName].value =  prop.value;
+			tpv[tpvName].timestamp =  Date.parse(props.timestamp);
+			changedTPV.push(tpvName);
+			//if(tpvName == 'mob') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
+		}
+	}
+}
+//console.log('tpv:',tpv);
+
+changedTPV = Array.from(new Set(changedTPV));	// unicue array
+display(changedTPV);	// Собственно рисование данных
+
+}; // end function websocketOnMessage
+
+
+function websocketOnClose(event) {
+/**/
+if (event.wasClean) {
+	console.log(`Websocket closed cleary with cide ${event.code} by reason: ${event.reason}`);
+} 
+else {	// сервер убил процесс или сеть недоступна. Обычно в этом случае event.code 1006
+	console.log(`Websocket closed: connection broken with code ${event.code} by reason ${event.reason}`);
+	window.setTimeout(doWebsocked, 5000, uri); 	// перезапустим сокет через 5 секунд
+}
+tpv = {};
+displayOFF();
+}; // end function websocketOnClose
+
+
+function websocketOnError(error) {
+/**/
+console.log(`Websocket error: ${error.message}`);
+display();	// возможно, удаление устаревших данных поддержит корректность отображения
+}; // end function websocketOnError
+
+</script>
+</body>
+</html>
+

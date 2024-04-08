@@ -1,0 +1,38 @@
+{
+	"dashboardCourseTXT" : "Истинный путевой угол",
+	"dashboardMagCourseTXT" : "Магнитный путевой угол",
+	"dashboardHeadingTXT" : "Истинный курс",
+	"dashboardMagHeadingTXT" : "Магнитный курс",
+	"dashboardCompassHeadingTXT" : "Компасный курс",
+	"dashboardSpeedTXT" : "Истинная скорость",
+	"dashboardVaterSpeedTXT" : "Cкорость по лагу",
+	"dashboardSpeedMesTXT" : "км/ч",
+	"dashboardDepthTXT" : "Глубина",
+	"dashboardKeelDepthTXT" : "Глубина под килем",
+	"dashboardTransDepthTXT" : "Глубина по лоту",
+	"dashboardDepthMesTXT" : "м",
+	"dashboardGNSSoldTXT" : "Нет данных",
+	"dashboardCollisionAlarmTXT" : "Дистанция до ближайшей навигационной опасности",
+	"dashboardMOBalarmTXT" : "Дистанция до человека за бортом",
+	"dashboardAlarmDistanceMesTXT" : "м.",
+
+	"dashboardWindSpeedTXT" : "Вымпельный ветер",
+	"dashboardWindSpeedMesTXT" : "м/сек",
+	"dashboardTrueWindSpeedTXT" : "Истинный ветер",
+
+	"dashboardPropStopTXT" : "Двигатель остановлен",
+	"dashboardPropRevolutionTXT" : "обороты двигателя",
+	"dashboardPropRevolutionMesTXT" : "об/мин",
+	"dashboardPropTemperatureTXT" : "температура двигателя",
+	"dashboardTemperatureMesTXT" : "°",
+	"dashboarAirTemperatureTXT" : "Наружная температура воздуха",
+	"dashboarAirPressureTXT" : "Атмосферное давление",
+	"dashboardAirPressureMesTXT" : "гПа",
+	"dashboarAirHumidityTXT" : "Наружная относительная влажность",
+	"dashboardAirHumidityMesTXT" : "%",
+	"dashboarWaterTemperatureTXT" : "Температура забортной воды",
+
+	"dashboarNextPointTXT" : "Расстояние до следующей навигационной точки",
+	"dashboarNextPointMesMTXT" : "м.",
+	"dashboarNextPointMesKMTXT" : "км."
+}

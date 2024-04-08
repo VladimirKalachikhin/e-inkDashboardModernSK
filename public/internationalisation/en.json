@@ -1,0 +1,38 @@
+{
+	"dashboardCourseTXT" : "Course",
+	"dashboardMagCourseTXT" : "Magnetic course",
+	"dashboardHeadingTXT" : "Heading",
+	"dashboardMagHeadingTXT" : "Heading magnetic",
+	"dashboardCompassHeadingTXT" : "Heading compass",
+	"dashboardSpeedTXT" : "Speed",
+	"dashboardVaterSpeedTXT" : "Speed through water",
+	"dashboardSpeedMesTXT" : "km/h",
+	"dashboardDepthTXT" : "Depth",
+	"dashboardKeelDepthTXT" : "Depth below keel",
+	"dashboardTransDepthTXT" : "Depth below transducer",
+	"dashboardDepthMesTXT" : "m",
+	"dashboardGNSSoldTXT" : "There is no data",
+	"dashboardCollisionAlarmTXT" : "Distance to the nearest navigate danger",
+	"dashboardMOBalarmTXT" : "Distance to the MOB",
+	"dashboardAlarmDistanceMesTXT" : "m.",
+
+	"dashboardWindSpeedTXT" : "Apparent wind",
+	"dashboardWindSpeedMesTXT" : "m/sec",
+	"dashboardTrueWindSpeedTXT" : "True wind",
+
+	"dashboardPropStopTXT" : "Engine stopped",
+	"dashboardPropRevolutionTXT" : "engine revolutions",
+	"dashboardPropRevolutionMesTXT" : "RPM",
+	"dashboardPropTemperatureTXT" : "engine temperature",
+	"dashboardTemperatureMesTXT" : "°C",
+	"dashboarAirTemperatureTXT" : "Current outside air temperature",
+	"dashboarAirPressureTXT" : "Current outside air ambient pressure",
+	"dashboardAirPressureMesTXT" : "hPa",
+	"dashboarAirHumidityTXT" : "Current outside air relative humidity",
+	"dashboardAirHumidityMesTXT" : "%",
+	"dashboarWaterTemperatureTXT" : "Current water temperature",
+
+	"dashboarNextPointTXT" : "Distance to the next point of navigate",
+	"dashboarNextPointMesMTXT" : "m.",
+	"dashboarNextPointMesKMTXT" : "km."
+}
