@@ -11,7 +11,7 @@ plugin.description = 'Dashboard for modern powerful JavaScript-enabled e-ink dev
 plugin.schema = {
 	'title': 'e-inkDashboardModern',
 	'type': 'object',
-	'description': 'Reload Dashboard page in browser after changing any of this.',
+	'description': '',
 	'properties': {
 		'trackProp':{
 			'title': 'Direction',
@@ -231,6 +231,9 @@ var unsubscribes = []; 	// массив функций с традиционны
 plugin.start = function (options, restartPlugin) {
 const fs = require("fs");
 
+const createOptionsCount = {'count':0,'timeoutID':null};	// счётчик попыток создания конфига в ожидании появления пути, и id процесса setTimeout
+const createOptionsCountLimit = 50;	// максимальное число попыток создать конфиг
+
 //app.debug('options:',options);
 /* optionsjs создаётся как строка, потому что там указаны имена переменных, в результате во время
 <script src="options.js"></script> эти имена будут заменены на значения. А если
@@ -241,11 +244,24 @@ const fs = require("fs");
 один раз на путь navigation.course.nextPoint подписываемся безусловно, для показа метки на круге,
 а потом подписываемся, если указано в конфигурации -- для показа расстояния до точки в углу.
 */
-let optionsjs = `
-const checkDataFreshness = ${options.checkDataFreshness};
+let optionsjs = '';	// конфиг, загружаемый клиентами как <script src="options.js"></script>
+createOptions();	// собственно генерация конфига
+app.debug('Plugin started');
+// На этом содержательная часть закончилась, дальше - определения функций
+
+
+
+
+function createOptions(){
+/**/
+optionsjs = `// Automaticaly created file
 // типы данных, которые, собственно, будем показывать 
 // javascript допускает комментарии в json?
-const displayData = {  	// 
+const displayData = {
+	'pluginStatus' : {	// состояние серверной части
+		'signalkPath': '${plugin.id}',
+		'maxRefreshInterval': 0,
+	},
 `;
 /* Центральный круг, безусловная подписка */
 /* направление */
@@ -550,11 +566,67 @@ if(options.rightBottomBlock.feature !== 'none') buildOptions(options.rightBottom
 optionsjs += `
 };
 `;
-fs.writeFileSync(__dirname+'/public/options.js',optionsjs);
+// Проверка, не изменили ли мы конфиг
+let prevOptions = '';
+try {
+	prevOptions = fs.readFileSync(__dirname+'/public/options.js','utf8');
+}
+catch(err) {
+}
+if(optionsjs != prevOptions) {
+	app.debug('Config updated',optionsjs.length,prevOptions.length);
+	fs.writeFileSync(__dirname+'/public/options.js',optionsjs);	// записываем конфиг
+
+	// Организуем служебный канал для сообщений клиентам о состоянии сервера, куда сообщаем, что конфиг изменился.
+	const delta = {
+		"context": "vessels.self",
+		"updates": [
+			{
+				"values": [
+					{
+						"path": plugin.id,
+						"value": "configCreate"
+					}
+				],
+				"source": { "label": plugin.id },
+				"timestamp": new Date().toISOString(),
+			}
+		]
+	};
+	app.handleMessage(plugin.id,delta);
+};
+
+// Последнее сообщение всегда должно быть с "value": null, потому что оно посылается каждому новому клиенту
+// Это не помогает, потому что клиент должен получить сообщение об изменении конфига, но он его не получит, если не на связи.
+// Например SignalK перегружали и конфиг изменился. Клиент отключился, и подключится через время.
+// А последнее сообщение - пусто.
+// Короче, при рестарте SignalK весь этот механизмик с перезагрузкой конфига не работает.
+// Только при изменении конфигурации плагина или обнаружения пути, при работающем SignalK
+setImmediate(()=>{	// запустим в следующем обороте
+	const delta = {
+		"context": "vessels.self",
+		"updates": [
+			{
+				"values": [
+					{
+						"path": plugin.id,
+						"value": null
+					}
+				],
+				"source": { "label": plugin.id },
+				"timestamp": new Date().toISOString(),
+			}
+		]
+	};
+	app.handleMessage(plugin.id,delta);
+});
+//
+
+
 
 function buildOptions(option,DOMid=null){
 /* дописывает optionsjs величинами для показа в углах экрана */
-let propulsion=[false,false];
+let propulsionPaths=[];
 
 if(option.feature.includes('SOG')) {	/* скорость */
 	optionsjs += `
@@ -622,9 +694,11 @@ else if(option.feature.includes('DBT')) {
 `;
 }
 else if(option.feature.includes('1 revolutions')) {	/* двигатели */
-	optionsjs += `
+	//setTimeout(()=>{app.debug('двигатель',app.getSelfPath('propulsion'))},3000);
+	if(checkPropulsionPath() && propulsionPaths[0]) {	// вообще-то, оно по логике здесь уже всегда есть, но для единообразия
+		optionsjs += `
 	'propRevolutions0' : {
-		'signalkPath': 'propulsion.p0.revolutions',
+		'signalkPath': '${propulsionPaths[0]}.revolutions',
 		'label': dashboardPropRevolutionTXT+', '+dashboardPropRevolutionMesTXT,
 		'precision' : 0,
 		'multiplicator' : 60,
@@ -633,13 +707,14 @@ else if(option.feature.includes('1 revolutions')) {	/* двигатели */
 		"DOMid": "${DOMid}"
 	},
 `;
-	propulsion[0]=true;
+	}
 }
 else if(option.feature.includes('1 temperature')) {
 	// Temperature in Kelvin!!!
-	optionsjs += `
+	if(checkPropulsionPath() && propulsionPaths[0]) {	// вообще-то, оно по логике здесь уже всегда есть, но для единообразия
+		optionsjs += `
 	'propTemperature0' : {
-		'signalkPath': 'propulsion.p0.temperature',
+		'signalkPath': '${propulsionPaths[0]}.temperature',
 		'label': dashboardPropTemperatureTXT+', '+dashboardTemperatureMesTXT,
 		'precision' : 0,
 		'maxRefreshInterval': ${option.maxRefreshInterval * 1000},
@@ -647,12 +722,13 @@ else if(option.feature.includes('1 temperature')) {
 		"DOMid": "${DOMid}"
 	},
 `;
-	propulsion[0]=true;
+	}
 }
 else if(option.feature.includes('2 revolutions')) {
-	optionsjs += `
+	if(checkPropulsionPath() && propulsionPaths[1]) {
+		optionsjs += `
 	'propRevolutions1' : {
-		'signalkPath': 'propulsion.p1.revolutions',
+		'signalkPath': '${propulsionPaths[1]}.revolutions',
 		'label': dashboardPropRevolutionTXT+', '+dashboardPropRevolutionMesTXT,
 		'precision' : 0,
 		'multiplicator' : 60,
@@ -661,13 +737,14 @@ else if(option.feature.includes('2 revolutions')) {
 		"DOMid": "${DOMid}"
 	},
 `;
-	propulsion[1]=true;
+	}
 }
 else if(option.feature.includes('2 temperature')) {
 	// Temperature in Kelvin!!!
-	optionsjs += `
+	if(checkPropulsionPath() && propulsionPaths[1]) {
+		optionsjs += `
 	'propTemperature1' : {
-		'signalkPath': 'propulsion.p1.temperature',
+		'signalkPath': '${propulsionPaths[1]}.temperature',
 		'label': dashboardPropTemperatureTXT+', '+dashboardTemperatureMesTXT,
 		'precision' : 0,
 		'maxRefreshInterval': ${option.maxRefreshInterval * 1000},
@@ -675,7 +752,7 @@ else if(option.feature.includes('2 temperature')) {
 		"DOMid": "${DOMid}"
 	},
 `;
-	propulsion[1]=true;
+	};
 }
 else if(option.feature.includes('air temperature')) {	/* температура воздуха */ 
 	// Temperature in Kelvin!!!
@@ -740,42 +817,65 @@ else if(option.feature.includes('navigated point')) {	/* следующая пу
 `;
 };
 
-if(propulsion[0]){
+if(propulsionPaths[0]){
 	optionsjs += `
 	'propLabel0' : {
-		'signalkPath': 'propulsion.p0.label',
+		'signalkPath': '${propulsionPaths[0]}.label',
 		'maxRefreshInterval': ${option.maxRefreshInterval * 1000},
 		'fresh': ${(10+option.maxRefreshInterval) * 1000},
 	},
 `;
 	optionsjs += `
 	'propState0' : {
-		'signalkPath': 'propulsion.p0.state',
+		'signalkPath': '${propulsionPaths[0]}.state',
 		'maxRefreshInterval': ${option.maxRefreshInterval * 1000},
 		'fresh': ${(10+option.maxRefreshInterval) * 1000},
 	},
 `;
 }
-if(propulsion[1]){
+if(propulsionPaths[1]){
 	optionsjs += `
 	'propLabel1' : {
-		'signalkPath': 'propulsion.p1.label',
+		'signalkPath': '${propulsionPaths[1]}.label',
 		'maxRefreshInterval': ${option.maxRefreshInterval * 1000},
 		'fresh': ${(10+option.maxRefreshInterval) * 1000},
 	},
 `;
 	optionsjs += `
 	'propState1' : {
-		'signalkPath': 'propulsion.p1.state',
+		'signalkPath': '${propulsionPaths[1]}.state',
 		'maxRefreshInterval': ${option.maxRefreshInterval * 1000},
 		'fresh': ${(10+option.maxRefreshInterval) * 1000},
 	},
 `;
 }
 
-}; // end function buildOptions
+function checkPropulsionPath(){
+if(!propulsionPaths.length){
+	const realPropulsionPath = app.getSelfPath('propulsion');
+	if(!realPropulsionPath) {
+		// запуск ожидания появления пути
+		//app.debug('Пути нет, ...');
+		if(createOptionsCount.count > createOptionsCountLimit){
+			clearTimeout(createOptionsCount.timeoutID);	// ну упс
+		}
+		else {
+			createOptionsCount.timeoutID = setTimeout(createOptions, 2000);
+			createOptionsCount.count += 1;
+		}
+		return false;
+	}
+	for(const propID in realPropulsionPath){
+		propulsionPaths.push('propulsion.'+propID)
+	};
+	clearTimeout(createOptionsCount.timeoutID);
+	//app.debug('Путь есть!');
+};
+return true;
+}; //			end function checkPropulsionPath
+}; // 		end function buildOptions
+}; //	end function createOptions
 
-app.debug('Plugin started');
 }; // end function plugin.start
 
 plugin.stop = function () {

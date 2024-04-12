@@ -100,17 +100,18 @@ if(displayData.wangle && displayData.wangle.trueWind) {	// если ветер �
 }
 
 const uri = `ws://${document.location.host}/signalk/v1/stream?subscribe=none`; 	// подписываться будем отдельно
-doWebsocked(uri) //	запускаем прослушивание сокета и обработку полученного
+doWebsocket(uri) //	запускаем прослушивание сокета и обработку полученного
 
 
 
-function doWebsocked(uri){
+function doWebsocket(uri){
 socket = new WebSocket(uri);
+//console.log('[doWebsocket] try to open socket',socket);
 socket.onopen = websocketOnOpen;
 socket.onmessage = websocketOnMessage;
 socket.onclose = websocketOnClose;
 socket.onerror = websocketOnError;
-} // end function doWebsocked
+} // end function doWebsocket
 
 
 function websocketOnOpen(event) {
@@ -193,7 +194,7 @@ for(let props of SKdata.updates){
 			else tpv[tpvName].value =  prop.value;
 			tpv[tpvName].timestamp =  Date.parse(props.timestamp);
 			changedTPV.push(tpvName);
-			//if(tpvName == 'mob') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
+			//if(tpvName == 'pluginStatus') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
 		}
 	}
 }
@@ -212,7 +213,7 @@ if (event.wasClean) {
 } 
 else {	// сервер убил процесс или сеть недоступна. Обычно в этом случае event.code 1006
 	console.log(`Websocket closed: connection broken with code ${event.code} by reason ${event.reason}`);
-	window.setTimeout(doWebsocked, 5000, uri); 	// перезапустим сокет через 5 секунд
+	window.setTimeout(doWebsocket, 5000, uri); 	// перезапустим сокет через 5 секунд
 }
 tpv = {};
 displayOFF();

@@ -54,6 +54,19 @@ for(let tpvName of changedTPV){
 	let str='',htmlBLock;
 	let strPropLabel='',strPropVal='';
 	switch(tpvName){
+	case 'pluginStatus':
+		//console.log('[display] pluginStatus:',tpv.pluginStatus);
+		if(tpv.pluginStatus){
+			switch(tpv.pluginStatus.value){
+			case 'configCreate':
+			case 'configChange':
+				console.log('Plugin reports that config changed, so window reload.');
+				location.reload(true);
+				break;
+			default:
+			};
+		};
+		break;
 	case 'position':
 		//console.log('position:',tpv.position);
 		if(mobPosition && tpv.position) {	// обновляем расстояние до MOB
@@ -574,7 +587,8 @@ return posX;
 
 var zerotonull = {};
 function isValueNull(valueName,value){
-/* возвращает true, если valueName было равно 0 isNullCount раз подряд */
+/* Следует ли считать нулевое значение valueName эквивалентным null
+возвращает true, если valueName было равно 0 isNullCount раз подряд */
 /*
 Эта задача сводится к счётчику, увеличивающемуся при каждом следующем вызове функции, 
 и часто приводится в качестве примера применения "замыкания" в javascript. Однако, легко видеть,
@@ -587,6 +601,7 @@ function isValueNull(valueName,value){
 */
 let isNullCount = 10;
 
+if(typeof value != 'number') return false;
 if(! zerotonull[valueName]) zerotonull[valueName] = 0;
 if(value === 0) zerotonull[valueName] += 1;	// строго целому нулю?
 else zerotonull[valueName] = 0;
