@@ -1,5 +1,5 @@
 [In English](README.md)  
-# E-InkDashboardModern SignalK Edition[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
+# E-InkDashboardModern SignalK Edition [![License: CC BY-NC-SA 4.0](screenshots/Cc-by-nc-sa_icon.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ru)
 Веб-приложение, показывающее в браузере основные параметры движения судна, получаемые от сервера [SignalK](https://signalk.org/).  
 Приложение ориентировано на мобильные устройства с e-ink экраном (на "электронных чернилах") и не требует установки каких-либо приложений: достаточно имеющегося браузера.  
 Разумеется, приложение работает также в любом более-менее современном браузере на любом устройстве с любым размером экрана.
