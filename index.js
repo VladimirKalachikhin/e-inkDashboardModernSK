@@ -232,7 +232,7 @@ plugin.start = function (options, restartPlugin) {
 const fs = require("fs");
 
 const createOptionsCount = {'count':0,'timeoutID':null};	// счётчик попыток создания конфига в ожидании появления пути, и id процесса setTimeout
-const createOptionsCountLimit = 50;	// максимальное число попыток создать конфиг
+const createOptionsCountLimit = 50;	// максимальное число попыток создать конфиг. Видимо, нужно, чтобы оно пыталось минут пять? Пока всё включат, пока заведут...
 
 //app.debug('options:',options);
 /* optionsjs создаётся как строка, потому что там указаны имена переменных, в результате во время
@@ -386,7 +386,7 @@ else if(options.trackProp.feature.includes('HC')) {
 let trueWind = 'false';
 if(options.wind.direction.feature.includes('AW')) {	// вымпельный ветер
 	optionsjs += `
-'wangle' : {
+	'wangle' : {
 		'signalkPath': 'environment.wind.angleApparent',
 		'label': '',
 		'precision' : 0,
@@ -852,23 +852,32 @@ if(propulsionPaths[1]){
 
 function checkPropulsionPath(){
 if(!propulsionPaths.length){
+	// функция может быть запущена несколько раз (по разу на каждый угол), и с предыдущего запуска всё уже.
 	const realPropulsionPath = app.getSelfPath('propulsion');
 	if(!realPropulsionPath) {
+		if(createOptionsCount.timeoutID) return false;	// ожидание уже запущено
 		// запуск ожидания появления пути
-		//app.debug('Пути нет, ...');
+		let timeout = 2000;
+		// Сперва будем часто пытаться, потом редко
+		if(createOptionsCount.count>10) timeout = 10000;
+		//app.debug('Пути нет',createOptionsCount.count*timeout/1000,'сек.');
+		//app.debug('timeout=',timeout,'на самом деле прошло',(Date.now()-createOptionsCount.timestamp)/1000,'сек.');
 		if(createOptionsCount.count > createOptionsCountLimit){
 			clearTimeout(createOptionsCount.timeoutID);	// ну упс
+			createOptionsCount.timeoutID = null;
 		}
 		else {
-			createOptionsCount.timeoutID = setTimeout(createOptions, 2000);
+			createOptionsCount.timeoutID = setTimeout(()=>{createOptionsCount.timeoutID = null; createOptions()}, timeout);
 			createOptionsCount.count += 1;
+			//createOptionsCount.timestamp = Date.now();
 		}
 		return false;
 	}
+	clearTimeout(createOptionsCount.timeoutID);
+	createOptionsCount.timeoutID = null;
 	for(const propID in realPropulsionPath){
 		propulsionPaths.push('propulsion.'+propID)
 	};
-	clearTimeout(createOptionsCount.timeoutID);
 	//app.debug('Путь есть!');
 };
 return true;
