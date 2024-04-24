@@ -11,9 +11,15 @@ chkTPV(tpvName)
 bigBlock(block,bigStyleName)
 updBottomMessages()
 
+MOBalarm()
+closebottomOnButtonMessage()
+sendMOBtoServer(status=true)
+
 bearing(latlng1, latlng2)
 equirectangularDistance(from,to)
 
+generateUUID()
+getCookie(name)
 */
 var bottomMessages = {};
 
@@ -219,12 +225,15 @@ for(let tpvName of changedTPV){
 		if(tpv.mob && tpv.mob.value){	// режим MOB есть
 			if(tpv.mob.value.position){	// Это GeoJSON, вероятно, от GaladrielMap
 				// поищем точку, указанную как текущая
-				for(let point of tpv.mob.value.position.features){	// там не только точки, но и LineString
-					if((point.geometry.type == "Point")  && point.properties.current){
+				let point;
+				for(point of tpv.mob.value.position.features){	// там не только точки, но и LineString
+					if((point.geometry.type == "Point")  && point.properties && point.properties.current){
 						mobPosition = {'longitude': point.geometry.coordinates[0],'latitude': point.geometry.coordinates[1]};
 						break;
 					}
-				}
+				};
+				// Но кто-то левый может прислать GeoJSON без указания текущей точки. Тогда текущей станет последняя.
+				if(!mobPosition) mobPosition = {'longitude': point.geometry.coordinates[0],'latitude': point.geometry.coordinates[1]};
 				
 			}
 			else {
@@ -581,6 +590,114 @@ return posX;
 } // end function realWindSymbolUpdate
 
 
+function MOBalarm(){
+if(tpv.mob && tpv.mob.value){	// режим MOB есть
+	bottomOnButtonMessage.innerHTML = `
+	<br>
+	<div class="messageButton" style="width: 60%;margin:1em 0;" onclick="sendMOBtoServer(true,tpv.mob.value.position);"><img src="img/mob.svg"> ${dashboardMOBbuttonAddTXT}</div>
+	<div class="messageButton" style="width: 20%;" onclick="sendMOBtoServer(false);"> ✘ ${dashboardMOBbuttonCancelTXT}</div>
+	`;
+	bottomOnButtonMessage.style.display = '';
+	document.body.addEventListener('click',(event)=>{closebottomOnButtonMessage();},{'once':true});
+}
+else {
+	bottomOnButtonMessage.style.display = 'none';
+	sendMOBtoServer(true);	//console.log('Поднять режим MOB');
+};
+}; // end function MOBalarm
+
+function closebottomOnButtonMessage(){
+bottomOnButtonMessage.style.display = 'none';
+} // end function closebottomOnButtonMessage
+
+function sendMOBtoServer(status=true,mobMarkerJSON=null){
+/* */
+//console.log("[sendMOBtoServer] status=",status,'tpv.position:',tpv.position);
+if (typeof mobMarkerJSON == "string") {
+	try	{mobMarkerJSON = JSON.parse(mobMarkerJSON);}
+	catch(error) {mobMarkerJSON = null;};
+};
+
+let delta;
+if(status) {	// нужно открыть режим "человек за бортом"
+	// Есть координаты
+	if(tpv.position && tpv.position.value && tpv.position.value.latitude && tpv.position.value.longitude){
+		if(mobMarkerJSON){	// передали точки, надо добавить
+			// это GeoJSON, считаем, что GaladrielMap
+			// На другие варианты забъём за отсутствием. Может быть, когда нибудь....
+			if(mobMarkerJSON.type == "FeatureCollection"){
+				mobMarkerJSON.features.push({
+						"type": "Feature",
+						"geometry": {
+							"type": "Point",
+							"coordinates": [tpv.position.value.longitude,tpv.position.value.latitude]
+						}
+					}
+				);
+			}
+		}
+		else {	// новая единственная точка
+			mobMarkerJSON = {
+				"type": "FeatureCollection",
+				"features": [
+					{
+						"type": "Feature",
+						"geometry": {
+							"type": "Point",
+							"coordinates": [tpv.position.value.longitude,tpv.position.value.latitude]
+						},
+						"properties": {
+							"current": true
+						}
+					}
+				]
+			};
+		};
+	};
+	delta = {
+		"context": "vessels.self",
+		"updates": [
+			{
+				"values": [
+					{
+						"path": "notifications.mob",
+						"value": {
+							"method": ["visual", "sound"],
+							"state": "emergency",
+							"message": "A man overboard!",
+							"source": instanceSelf,
+							"position": mobMarkerJSON
+						},
+					}
+				],
+				"timestamp": new Date().toISOString(),
+			}
+		]
+	};
+}
+else {
+	delta = {
+		"context": "vessels.self",
+		"updates": [
+			{
+				"values": [
+					{
+						"path": "notifications.mob",
+						"value": null
+					}
+				],
+				"timestamp": new Date().toISOString(),
+			}
+		]
+	};
+};
+
+//console.log('[sendMOBtoServer] delta:',delta);
+if(socket.readyState == 1) {
+	socket.send(JSON.stringify(delta));
+};
+}; // end function sendMOBtoServer
+
 
 
 
@@ -696,4 +813,32 @@ const y = (φ2-φ1);
 const d = Math.sqrt(x*x + y*y) * R;	// метров
 return d;
 } // end function equirectangularDistance
+
+function generateUUID() { 
+// Public Domain/MIT https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
+// мне пофигу их соображеия о "небезопасности", ибо они вне контекста
+    var d = new Date().getTime();//Timestamp
+    var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16;//random number between 0 and 16
+        if(d > 0){//Use timestamp until depleted
+            r = (d + r)%16 | 0;
+            d = Math.floor(d/16);
+        } else {//Use microseconds since page-load if supported
+            r = (d2 + r)%16 | 0;
+            d2 = Math.floor(d2/16);
+        }
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}; // end function generateUUID
+
+function getCookie(name) {
+// возвращает cookie с именем name, если есть, если нет, то undefined
+name=name.trim();
+var matches = document.cookie.match(new RegExp(
+	"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+	)
+);
+return matches ? decodeURIComponent(matches[1]) : null;
+}; // end function getCookie
 

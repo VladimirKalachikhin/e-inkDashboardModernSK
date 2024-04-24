@@ -28,7 +28,7 @@ body {
 	grid-column-end: 5;
 	grid-row-start: 1;
 	grid-row-end: 2;
-	font-size: calc(var(--out-width)*0.03);
+	font-size: var(--pico-font-size);
 	text-align: center;
 	
 	/*display:inherit; border:solid green;*/
@@ -50,8 +50,9 @@ body {
 	grid-column-end: 5;
 	grid-row-start: 5;
 	grid-row-end: 6;
-	font-size: calc(var(--out-width)*0.03);
+	font-size: var(--pico-font-size);
 	text-align: center;
+	align-self: end;
 	/*display:inherit; border:solid green;*/
 }
 
@@ -65,6 +66,7 @@ body {
 	line-height: 0.7;
 	height: fit-content;
 	/*align-self: start;	это умолчальное значение */
+	margin-top: 0.1em;
 
 	/*border:solid green;*/
 }
@@ -87,6 +89,7 @@ body {
 	line-height: 0.7;
 	height: fit-content;
 	/*align-self: start;	это умолчальное значение */
+	margin-top: 0.1em;
 
 	/*border:solid green;*/
 }
@@ -109,6 +112,7 @@ body {
 	line-height: 0.7;
 	height: fit-content;
 	align-self: end;
+	margin-bottom: 0.1em;
 
 	/*border:solid green;*/
 }
@@ -130,12 +134,15 @@ body {
 	line-height: 0.7;
 	height: fit-content;
 	align-self: end;
+	margin-bottom: 0.1em;
 
 	/*border:solid green;*/
 }
 .rightBottomBlockBig {
 	grid-column-start: 3 !important;
+	grid-column-end: 6;
 	grid-row-start: 3 !important;
+	grid-row-end: 5;
 	font-size: 3em !important;
 	/*border:solid green;*/
 }
@@ -155,6 +162,65 @@ body {
 @keyframes frameblinker{
 	50% { border-color: white; }
 }
+
+#bottomOnButtonMessage {
+	grid-column-start: 1;
+	grid-column-end: 6;
+	grid-row-start: 4;
+	grid-row-end: 6;
+	text-align: center;
+	display: flow; /* Вложенные объекты будут подчиняться обычным правилам размещения */
+
+	border: solid black;
+	border-radius: calc(var(--out-width)*0.02);
+	/* Поскольку высота ячейки grid меняется с изменением размера шрифта в угловых блоках (почему?)
+	то высота этого блока фиксирована и чуть меньше нормальной высоты ячейки, а сам блок
+	выровнен к концу ячейки, чтобы не менял положения с изменением высоты ячейки. Пурга какая-то...
+	*/
+	height: calc(var(--out-width)*0.3);
+	width: 100%;
+	align-self: end;
+	/* Непрозрачный фон и выше всего на 10. 
+	Тогда закрывает и компас, который всегда сверху, потому что крутится */
+	background-color: white;
+	z-index: 10;
+	font-size: var(--ltl-font-size);
+}
+.messageButton {
+	display: inline-block;
+	border: solid black;
+	border-radius: calc(var(--out-width)*0.02);
+	margin: calc(var(--ltl-font-size)*0.5) var(--ltl-font-size);
+	padding: 0 0.5em;
+	min-width: fit-content;
+}
+.messageButton img{
+	width: calc(var(--out-width)*0.05);
+	margin: auto calc(var(--out-width)*0.025);
+}
+
+
+/* Стили кнопок */
+#mobButton {
+	grid-column-start: 1;
+	grid-column-end: 3;
+	grid-row-start: 5;
+	grid-row-end: 6;
+	text-align: left;
+	display: inherit; 
+
+	border: solid black;
+	border-radius: calc(var(--out-width)*0.02);
+	height: fit-content;
+	width: calc(var(--out-width)*0.5);
+}
+#mobButton img{
+	width: calc(var(--out-width)*0.05);
+	vertical-align: middle;
+	margin: 0 auto;
+}
+
+
 
 /* стили компаса */
 #compass {

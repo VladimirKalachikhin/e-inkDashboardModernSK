@@ -6,7 +6,7 @@
 
 **WARNING! No information shown or not shown by this application may serve as a basis for an action or inaction of the shipmaster.**
 
-## v. 0.0
+## v. 0.1
 Contents:  
 - [Features](#features)
 - - [Direction](#direction)
@@ -69,10 +69,12 @@ Pointers in the form of contour arrows indicate directions to hazards issued by 
 Once the hazard is gone, the information in the lower right corner is restored.
 
 ### Man Overboard
-Showing the direction and distance to an object in a Man Overboard situation is possible at least when the Man Overboard mode is set from the [GaladrielMap](https://www.npmjs.com/package/galadrielmap_sk) chartplotter.
-
+The "Man Overboard" mode raise by  pressing the key in the lower left corner. A message is sent to the SignalK server, which can be picked up by relevant programmes, and the [GaladrielMap](https://www.npmjs.com/package/galadrielmap_sk)  chartplotter displays the location of the object.  
 The direction to the object is shown, and the distance is also shown in the lower left corner, regardless of what has been shown at that location before. The distance is framed by a flashing corner frame to attract attention.  
- The information in the lower left corner is restored when the Man Overboard situation is terminated.
+The information in the lower left corner is restored when the "Man Overboard" situation is canceled.
+
+You can cancel the "Man overboard" mode by pressing the key in the lower left corner again. In the panel that opens, select Cancel. You can also stop the "Man overboard" mode by using the corresponding tools in the [GaladrielMap](https://www.npmjs.com/package/galadrielmap_sk) chartploter.  
+If necessary, using the same panel, you can add more points related to the "Man overboard" situation. They will be shown in the chartplotter [GaladrielMap](https://www.npmjs.com/package/galadrielmap_sk ) and can be processed there.
 
 ### In screen corners
 One of the following values may be displayed in each of the four corners of the screen, if the SignalK server has the information:

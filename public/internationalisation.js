@@ -91,6 +91,8 @@ if (xhr.status == 200) { 	// Успешно
 		dashboardGNSSoldTXT,
 		dashboardCollisionAlarmTXT,
 		dashboardMOBalarmTXT,
+		dashboardMOBbuttonAddTXT,
+		dashboardMOBbuttonCancelTXT,
 		dashboardAlarmDistanceMesTXT,
 		dashboardWindSpeedTXT,
 		dashboardWindSpeedMesTXT,

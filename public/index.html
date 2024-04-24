@@ -24,6 +24,11 @@
 </div>
 <div id="rightBottomBlock" onclick="bigBlock(this,'rightBottomBlockBig');" style="display:none;">
 </div>
+<div id="bottomOnButtonMessage"><!-- Там четыре строки -->
+</div>
+<div id="mobButton">
+	<img src="img/mob.svg">
+</div>
 <div id="compass">
 	<div id="center_icon">
 		<svg xml:space="default" version="1.1" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
@@ -90,20 +95,38 @@
 //console.log(displayData);
 
 var mobPosition=null;	// информация о режиме MOB: маркер из GaladrilMap или что-то ещё
-
 var tpv = {};
 var mobPosition = {};
 var socket;
+
+// Переменные со строками подписей определяются в internationalisation.js
+// Переменные - параметры определяются в options.js
+// Завершающая нициализация
+var instanceSelf = getCookie('e-inkВashboardModernInstance');	// идентификатор экземпляра программы
+if(!instanceSelf) {
+	instanceSelf = generateUUID();
+	let expires =  new Date();
+	expires.setTime(expires.getTime() + (24*60*60*1000)); 	// протухнет через сутки
+	document.cookie = "e-inkВashboardModernInstance="+instanceSelf+"; expires="+expires+"; path=/; SameSite=Lax;";
+}
+
+bottomOnButtonMessage.style.display = 'none';
+mobButton.addEventListener('click',function (event){
+	event.stopPropagation();	// чтобы оно не дошло до body, на который раньше успело навеситься closebottomOnButtonMessage. Что странно...
+	MOBalarm();
+});
 
 if(displayData.wangle && displayData.wangle.trueWind) {	// если ветер истинный
 	compassCard.appendChild(windSVGimage);	// переставим символ ветра в картушку
 }
 
+// Поехали
 const uri = `ws://${document.location.host}/signalk/v1/stream?subscribe=none`; 	// подписываться будем отдельно
 doWebsocket(uri) //	запускаем прослушивание сокета и обработку полученного
 
 
 
+// Дальше определение функций
 function doWebsocket(uri){
 socket = new WebSocket(uri);
 //console.log('[doWebsocket] try to open socket',socket);

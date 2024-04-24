@@ -14,6 +14,8 @@
 	"dashboardGNSSoldTXT" : "Нет данных",
 	"dashboardCollisionAlarmTXT" : "Дистанция до ближайшей навигационной опасности",
 	"dashboardMOBalarmTXT" : "Дистанция до человека за бортом",
+	"dashboardMOBbuttonAddTXT" : "Ещё точка",
+	"dashboardMOBbuttonCancelTXT" : "Завершить",
 	"dashboardAlarmDistanceMesTXT" : "м.",
 
 	"dashboardWindSpeedTXT" : "Вымпельный ветер",

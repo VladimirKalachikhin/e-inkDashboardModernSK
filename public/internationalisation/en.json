@@ -14,6 +14,8 @@
 	"dashboardGNSSoldTXT" : "There is no data",
 	"dashboardCollisionAlarmTXT" : "Distance to the nearest navigate danger",
 	"dashboardMOBalarmTXT" : "Distance to the MOB",
+	"dashboardMOBbuttonAddTXT" : "Add MOB point",
+	"dashboardMOBbuttonCancelTXT" : "Cancel",
 	"dashboardAlarmDistanceMesTXT" : "m.",
 
 	"dashboardWindSpeedTXT" : "Apparent wind",
