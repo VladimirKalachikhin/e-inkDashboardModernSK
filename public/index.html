@@ -184,7 +184,7 @@ if(SKdata.roles) { 	// greeting
 let changedTPV = [];	// список ключей tpv, значения которых получили изменения, для обновления их в интерфейсе
 let checksTPV = [];	// список ключей tpv, для которых запущен setInterval контроля свежести
 for(let props of SKdata.updates){
-	if(!props.values) continue;	// я не знаю, когда и почему вдруг может не быть. Но -- не бывает
+	if(!props.values) continue;	// я не знаю, когда и почему вдруг может не быть. Но -- не бывает. Потому что срабатывает не только при изменении данных, но и при изменении meta данных. Тогда props.values нет, а есть props.meta
 	for(let prop of props.values) {
 		//console.log('[websocketOnMessage] prop:',prop);
 

@@ -76,6 +76,8 @@ The information in the lower left corner is restored when the "Man Overboard" si
 You can cancel the "Man overboard" mode by pressing the key in the lower left corner again. In the panel that opens, select Cancel. You can also stop the "Man overboard" mode by using the corresponding tools in the [GaladrielMap](https://www.npmjs.com/package/galadrielmap_sk) chartploter.  
 If necessary, using the same panel, you can add more points related to the "Man overboard" situation. They will be shown in the chartplotter [GaladrielMap](https://www.npmjs.com/package/galadrielmap_sk ) and can be processed there.
 
+When using [naiveGPXlogger](https://www.npmjs.com/package/naivegpxlogger) it is recommended to enable the "Start logging by the MOB alarm" option. Then, when activating the "Man overboard" mode, the logging of the path will begin, and the recorded path will automatically be shown in the chartploter [GaladrielMap](https://www.npmjs.com/package/galadrielmap_sk).
+
 ### In screen corners
 One of the following values may be displayed in each of the four corners of the screen, if the SignalK server has the information:
 

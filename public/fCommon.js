@@ -223,7 +223,7 @@ for(let tpvName of changedTPV){
 	case 'mob':
 		//console.log('mob:',tpv.mob);
 		if(tpv.mob && tpv.mob.value){	// режим MOB есть
-			if(tpv.mob.value.position){	// Это GeoJSON, вероятно, от GaladrielMap
+			if(tpv.mob.value.position.features){	// Это GeoJSON, вероятно, от GaladrielMap
 				// поищем точку, указанную как текущая
 				let point;
 				for(point of tpv.mob.value.position.features){	// там не только точки, но и LineString
@@ -237,16 +237,39 @@ for(let tpvName of changedTPV){
 				
 			}
 			else {
-				const s = JSON.stringify(tpv.mob.value);
-				if(s.includes('longitude') && s.includes('latitude')){
-					mobPosition = {'longitude': tpv.mob.value.longitude,'latitude': tpv.mob.value.latitude};
+				if(tpv.mob.value.position){
+					const s = JSON.stringify(tpv.mob.value.position);
+					if(s.includes('longitude') && s.includes('latitude')){
+						mobPosition = {'longitude': tpv.mob.value.position.longitude,'latitude': tpv.mob.value.position.latitude,'nogeojson': true};
+					}
+					else if(s.includes('lng') && s.includes('lat')){
+						mobPosition = {'longitude': tpv.mob.value.position.lng,'latitude': tpv.mob.value.position.lat,'nogeojson': true};
+					}
+					else if(s.includes('lon') && s.includes('lat')){
+						mobPosition = {'longitude': tpv.mob.value.position.lon,'latitude': tpv.mob.value.position.lat,'nogeojson': true};
+					}
+					else if(Array.isArray(tpv.mob.value.position)){
+						mobPosition = {'longitude': tpv.mob.value.position[0],'latitude': tpv.mob.value.position[1],'nogeojson': true};
+					};
 				}
-				else if(s.includes('lng') && s.includes('lat')){
-					mobPosition = {'longitude': tpv.mob.value.lng,'latitude': tpv.mob.value.lat};
-				}
-				else if(s.includes('lon') && s.includes('lat')){
-					mobPosition = {'longitude': tpv.mob.value.lon,'latitude': tpv.mob.value.lat};
-				}
+				else{
+					const s = JSON.stringify(tpv.mob.value);
+					if(s.includes('longitude') && s.includes('latitude')){
+						mobPosition = {'longitude': tpv.mob.value.longitude,'latitude': tpv.mob.value.latitude,'nogeojson': true};
+					}
+					else if(s.includes('lng') && s.includes('lat')){
+						mobPosition = {'longitude': tpv.mob.value.lng,'latitude': tpv.mob.value.lat,'nogeojson': true};
+					}
+					else if(s.includes('lon') && s.includes('lat')){
+						mobPosition = {'longitude': tpv.mob.value.lon,'latitude': tpv.mob.value.lat,'nogeojson': true};
+					}
+					else if(Array.isArray(tpv.mob.value)){
+						mobPosition = {'longitude': tpv.mob.value[0],'latitude': tpv.mob.value[1],'nogeojson': true};
+					};
+				};
+				mobPosition.longitude = parseFloat(mobPosition.longitude);
+				mobPosition.latitude = parseFloat(mobPosition.latitude);
+				if(isNaN(mobPosition.longitude) || isNaN(mobPosition.latitude)) mobPosition = null;
 			}
 			//console.log('mobPosition:',mobPosition);
 		}
@@ -431,6 +454,7 @@ center_marc.style.display = '';
 topMessage.style.display = '';
 bottomMessage.style.display = '';
 center_icon.style.display = '';
+mobButton.style.display = '';
 
 compassMessage.style.display = 'none';
 }; // end function displayON
@@ -448,6 +472,7 @@ leftTopBlock.style.display = 'none';	// чтобы и события отклю�
 rightTopBlock.style.display = 'none';
 rightBottomBlock.style.display = 'none';
 leftBottomBlock.style.display = 'none';
+mobButton.style.display = 'none';
 
 compassMessage.innerHTML = `<span>${dashboardGNSSoldTXT}</span>`;
 compassMessage.style.display = '';
@@ -594,7 +619,9 @@ function MOBalarm(){
 if(tpv.mob && tpv.mob.value){	// режим MOB есть
 	bottomOnButtonMessage.innerHTML = `
 	<br>
-	<div class="messageButton" style="width: 60%;margin:1em 0;" onclick="sendMOBtoServer(true,tpv.mob.value.position);"><img src="img/mob.svg"> ${dashboardMOBbuttonAddTXT}</div>
+	`;
+	if(mobPosition && !mobPosition.nogeojson) bottomOnButtonMessage.innerHTML += `<div class="messageButton" style="width: 60%;margin:1em 0;" onclick="sendMOBtoServer(true,tpv.mob.value.position);"><img src="img/mob.svg"> ${dashboardMOBbuttonAddTXT}</div>`;
+	bottomOnButtonMessage.innerHTML += `
 	<div class="messageButton" style="width: 20%;" onclick="sendMOBtoServer(false);"> ✘ ${dashboardMOBbuttonCancelTXT}</div>
 	`;
 	bottomOnButtonMessage.style.display = '';
