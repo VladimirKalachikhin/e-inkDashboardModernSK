@@ -74,7 +74,7 @@ for(let tpvName of changedTPV){
 		};
 		break;
 	case 'position':
-		//console.log('position:',tpv.position);
+		//console.log('[display] position:',tpv.position,'mobPosition:',mobPosition);
 		if(mobPosition && tpv.position) {	// обновляем расстояние до MOB
 			const mobDist = equirectangularDistance(tpv.position.value,mobPosition);
 			//console.log('[display] mobPosition:',mobPosition,'tpv.position:',tpv.position,'mobDist=',mobDist);
@@ -221,9 +221,13 @@ for(let tpvName of changedTPV){
 		}
 		break;
 	case 'mob':
-		//console.log('mob:',tpv.mob);
+		//console.log('mob:',JSON.stringify(tpv.mob));
 		if(tpv.mob && tpv.mob.value){	// режим MOB есть
-			if(tpv.mob.value.position.features){	// Это GeoJSON, вероятно, от GaladrielMap
+			//console.log('mob:',tpv.mob.value);
+			if(tpv.mob.value.data && tpv.mob.value.data.position){	// mob as described https://github.com/SignalK/signalk-server/pull/1560
+				mobPosition = {'longitude': tpv.mob.value.data.position.longitude,'latitude': tpv.mob.value.data.position.latitude,'nogeojson': true};
+			}
+			else if(tpv.mob.value.position && tpv.mob.value.position.features){	// Это GeoJSON, вероятно, от GaladrielMap
 				// поищем точку, указанную как текущая
 				let point;
 				for(point of tpv.mob.value.position.features){	// там не только точки, но и LineString
