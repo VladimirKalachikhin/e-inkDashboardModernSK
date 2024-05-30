@@ -217,7 +217,7 @@ for(let props of SKdata.updates){
 			else tpv[tpvName].value =  prop.value;
 			tpv[tpvName].timestamp =  Date.parse(props.timestamp);
 			changedTPV.push(tpvName);
-			//if(tpvName == 'pluginStatus') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
+			//if(tpvName == 'wangle') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
 		}
 	}
 }

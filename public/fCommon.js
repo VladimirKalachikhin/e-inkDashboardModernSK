@@ -135,13 +135,17 @@ for(let tpvName of changedTPV){
 		}
 		break;
 	case 'wangle':
+		// Реально значёт ветра будет перерсован, когда есть и wangle и wspeed
+		// т.е., сначала придёт что-то одно, потом, когда придёт следующее - 
+		// значёк будет нарисован, но с прошлым значением другого.
+		// Эмулятор SKsim сперва присылает угол, а потом скорость
 /* FOR TEST*/
 		//if(!tpv.wangle) tpv.wangle = {};
 		//tpv.wangle.value = 45;
 /* END FOR TEST*/
 		if(tpv.wspeed && tpv.wspeed.value != null && tpv.wspeed.value != undefined) {
 			if(tpv.wangle && tpv.wangle.value != null && tpv.wangle.value != undefined) {
-				//console.log('wind direction=',tpv.wangle.value);
+				//console.log('wind direction=',tpv.wangle.value,'wind speed=',tpv.wspeed.value);
 				//windSVGimage.style.transform = `rotate(${tpv.wangle.value-90}deg)`;
 				windSVGimage.setAttribute("transform", `rotate(${tpv.wangle.value-90})`);
 			}
@@ -155,6 +159,7 @@ for(let tpvName of changedTPV){
 	case 'wspeed':
 		if(tpv.wangle && tpv.wangle.value != null && tpv.wangle.value != undefined) {
 			if(tpv.wspeed && tpv.wspeed.value != null && tpv.wspeed.value != undefined) {
+				//console.log('wind speed=',tpv.wspeed.value,'wind direction=',tpv.wangle.value);
 				realWindSymbolViewUpdate(tpv.wspeed.value);
 				bottomMessages.wspeed = `${displayData.wspeed.label} ${tpv.wspeed.value.toFixed(displayData.wspeed.precision)}`;
 				updBottomMessages();	// показывает нижнее сообщение
@@ -222,9 +227,15 @@ for(let tpvName of changedTPV){
 		break;
 	case 'mob':
 		//console.log('mob:',JSON.stringify(tpv.mob));
-		if(tpv.mob && tpv.mob.value){	// режим MOB есть
+		// Похоже, что автор Freeboard-SK индус. В любом случае - он дебил, и
+		// разницы между выключением режима и сменой режима не видит.
+		// Поэтому он выключает режим MOB установкой value.state = "normal"
+		// вместо value = null, как это указано в документации.
+		if(tpv.mob && tpv.mob.value && (tpv.mob.value.state != "normal")){	// режим MOB есть
 			//console.log('mob:',tpv.mob.value);
-			if(tpv.mob.value.data && tpv.mob.value.data.position){	// mob as described https://github.com/SignalK/signalk-server/pull/1560
+			// mob as described https://github.com/SignalK/signalk-server/pull/1560
+			// при этом у этих кретинов может быть "position": "No vessel position data."
+			if(tpv.mob.value.data && tpv.mob.value.data.position){	
 				mobPosition = {'longitude': tpv.mob.value.data.position.longitude,'latitude': tpv.mob.value.data.position.latitude,'nogeojson': true};
 			}
 			else if(tpv.mob.value.position && tpv.mob.value.position.features){	// Это GeoJSON, вероятно, от GaladrielMap
@@ -271,11 +282,13 @@ for(let tpvName of changedTPV){
 						mobPosition = {'longitude': tpv.mob.value[0],'latitude': tpv.mob.value[1],'nogeojson': true};
 					};
 				};
-				mobPosition.longitude = parseFloat(mobPosition.longitude);
-				mobPosition.latitude = parseFloat(mobPosition.latitude);
-				if(isNaN(mobPosition.longitude) || isNaN(mobPosition.latitude)) mobPosition = null;
+				if(mobPosition){
+					mobPosition.longitude = parseFloat(mobPosition.longitude);
+					mobPosition.latitude = parseFloat(mobPosition.latitude);
+					if(isNaN(mobPosition.longitude) || isNaN(mobPosition.latitude)) mobPosition = null;
+				}
 			}
-			//console.log('mobPosition:',mobPosition);
+			//console.log('The MOB is raised, mobPosition:',mobPosition);
 		}
 		else {	// режима MOB нет
 			mobPosition = null;
