@@ -633,7 +633,7 @@ return posX;
 
 
 function MOBalarm(){
-if(tpv.mob && tpv.mob.value){	// режим MOB есть
+if(tpv.mob && tpv.mob.value && (tpv.mob.value.state != "normal")){	// режим MOB есть
 	bottomOnButtonMessage.innerHTML = `
 	<br>
 	`;
