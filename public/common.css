@@ -33,18 +33,6 @@ body {
 	
 	/*display:inherit; border:solid green;*/
 }
-#compassMessage {
-	grid-column-start: 3;
-	grid-column-end: 4;
-	grid-row-start: 3;
-	grid-row-end: 4;
-	margin: auto;
-	/*font-size: var(--small-font-size);*/
-	font-size: 0.5em;
-	text-align: center;
-	
-	/*display:inherit; border:solid green;*/
-}
 #bottomMessage {
 	grid-column-start: 2;
 	grid-column-end: 5;
@@ -224,7 +212,6 @@ body {
 
 /* стили компаса */
 #compass {
-	--center-icon-size: calc(var(--out-width)/4);
 	--collisionArrowWidthBig: var(--center-icon-size);
 	--collisionArrowLeftBig: calc(var(--out-width)/2 - var(--collisionArrowWidthBig)/2);
 	--collisionArrowWidthNormal: calc(var(--collisionArrowWidthBig)*0.75);
@@ -233,6 +220,7 @@ body {
 	--collisionArrowLeftSmall: calc(var(--out-width)/2 - var(--collisionArrowWidthSmall)/2);
 	--collisionArrowWidthLitle: calc(var(--collisionArrowWidthBig)*0.3);
 	--collisionArrowLeftLitle: calc(var(--out-width)/2 - var(--collisionArrowWidthLitle)/2);
+	--center-icon-size: calc(var(--out-width)/4);
 	
 	/*border: solid red;*/
 	
@@ -245,6 +233,19 @@ body {
 	grid-row-end: 5;
 	margin: auto;
 
+}
+#compassMessage {
+	font-size: 0.5em;
+	text-align: center;
+
+	height: var(--center-icon-size);
+	width: var(--center-icon-size);
+
+	position: absolute;
+	top: calc(var(--out-width)/2 - var(--center-icon-size)/2);
+	left: calc(var(--out-width)/2 - var(--center-icon-size)/2);
+
+	/*border:solid green;*/
 }
 /* стили картушки компаса */
 .compass-card {

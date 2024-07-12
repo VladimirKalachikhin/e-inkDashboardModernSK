@@ -6,7 +6,8 @@ displayOFF()
 realWindSymbolUpdate(direction=0,speed=0)
 
 isValueNull(valueName,value)
-chkTPV(tpvName)
+chkTPV(tpvName,checksTPV)
+chkAllTPV()
 
 bigBlock(block,bigStyleName)
 updBottomMessages()
@@ -135,6 +136,7 @@ for(let tpvName of changedTPV){
 		}
 		break;
 	case 'wangle':
+		// Ветер у нас уже абсолютный, т.е., относительно N.
 		// Реально значёт ветра будет перерсован, когда есть и wangle и wspeed
 		// т.е., сначала придёт что-то одно, потом, когда придёт следующее - 
 		// значёк будет нарисован, но с прошлым значением другого.
@@ -146,7 +148,6 @@ for(let tpvName of changedTPV){
 		if(tpv.wspeed && tpv.wspeed.value != null && tpv.wspeed.value != undefined) {
 			if(tpv.wangle && tpv.wangle.value != null && tpv.wangle.value != undefined) {
 				//console.log('wind direction=',tpv.wangle.value,'wind speed=',tpv.wspeed.value);
-				//windSVGimage.style.transform = `rotate(${tpv.wangle.value-90}deg)`;
 				windSVGimage.setAttribute("transform", `rotate(${tpv.wangle.value-90})`);
 			}
 			else {
@@ -774,20 +775,63 @@ if(zerotonull[valueName] >= isNullCount){
 return false;
 } // end function isValueNull
 
-function chkTPV(tpvName,checksTPV) {
-/* Проверяет, не протухло ли tpvName*/
-if(!displayData[tpvName].fresh) return;	// если нет срока годности -- данные всегда свежие
-//console.log('[chkTPV] Очищаем данные от устаревших. tpvName=',tpvName,'displayData[tpvName].fresh=',displayData[tpvName].fresh,'Время данных',tpv[tpvName].timestamp,'Разница между сейчас и временем данных',Date.now()-tpv[tpvName].timestamp);
-if(tpv[tpvName] && ((Date.now()-tpv[tpvName].timestamp) > displayData[tpvName].fresh)){
+function chkTPV(tpvName,checksTPV={}) {
+/* Проверяет, не протухло ли tpvName
+В кривом signalk нет не только проверки актуальности данных, но есть и преднамеренное
+введение пользователя в заблуждение относительно актуальности данных.
+А именно:
+по крайней мере navigation.courseOverGroundTrue может быть получено как из RMC предложения NMEA0183
+так и из VTG. Нормально, что в потоке NMEA есть и то и то. Но предложение RMC содержит отметку времени,
+а предложение VTG - нет. Предложение RMC обязательно, и есть всегда, поэтому, скажем, в gpsd
+от момента прихода сообщения RMC отсчитывается "эпоха", и считается, что все другие предложения в течение
+эпохи имеют отметку времени, указанную в последнем предложении RMC.
+В signalk "эпохи" нет, и там (любой?) величине, вычисленной из предложения NMEA, не имеющего отметки времени, ставится отметка
+текущего времени, т.е., недостоверная. 
+Так, navigation.courseOverGroundTrue, полученный из RMC,
+будет иметь отметку времени RMC, а navigation.courseOverGroundTrue, полученный из VTG - 
+отметку текущего времени. Если поток NMEA идёт с задержкой, то только часть значений navigation.courseOverGroundTrue
+позволит это узнать.
+
+Кроме того, в описываемом случае, видимо, время, установленное по GGA, будет на примерно 5(?) суток вперёд.
+Это ваще фигня какая-то...
+Не исключено, что эта фигня в naiveNMEAdaemon.php
+*/
+let changed=false;
+if(!displayData[tpvName].fresh) return changed;	// если нет срока годности -- данные всегда свежие
+const dt = Date.now()-tpv[tpvName].timestamp;
+//if(tpvName=='track') console.log('[chkTPV] tpvName=',tpvName,'displayData[tpvName].fresh=',displayData[tpvName].fresh,'Время данных',tpv[tpvName].timestamp,'устарело на',(Date.now()-tpv[tpvName].timestamp)/1000,'сек.');
+if(tpv[tpvName] && ((dt > displayData[tpvName].fresh) || dt < 0)){	// dt меньше 0 - это фигня какая-то... Почему?
 	console.log('Property',tpvName,'is',(Date.now()-tpv[tpvName].timestamp)/1000,'sec. old, but should be no more than',displayData[tpvName].fresh/1000,'sec.');
 	delete tpv[tpvName]; 	// 
-	//console.log('[chkTPV tpv после очистки]',tpv);
+	//console.log('[chkTPV tpv после очистки]',JSON.stringify(tpv,null,"\t"));
 	display([tpvName]);
+	changed = true;
 	//console.log('clearInterval для ',checksTPV[tpvName]);
-	clearInterval(checksTPV[tpvName]);
-	delete checksTPV[tpvName];
-}
-} // end function chkTPV
+	if(checksTPV[tpvName]){
+		clearInterval(checksTPV[tpvName]);
+		delete checksTPV[tpvName];
+	};
+};
+return changed;
+}; // end function chkTPV
+
+function chkAllTPV(){
+let minFresh=999999999999;
+let changed=false;
+for(let tpvName in tpv){
+	//console.log('[chkAllTPV] tpvName=',tpvName);
+	changed = chkTPV(tpvName);
+	if(!changed && displayData[tpvName].fresh && (displayData[tpvName].fresh < minFresh)) minFresh = displayData[tpvName].fresh;
+};
+//console.log('[chkAllTPV] minFresh=',minFresh,'minFreshInterval:',minFreshInterval);
+if(minFresh > 10000) minFresh = 10000;	// может не быть ни одного значения свежести, или быть очень большое
+if(minFresh != minFreshInterval.value){
+	minFreshInterval.value = minFresh;
+	clearInterval(minFreshInterval.object);
+	//console.log('[chkAllTPV] Интервал проверки свежести имеющихся данных изменён на',minFreshInterval.value/1000,'сек.');
+	minFreshInterval.object = window.setInterval(chkAllTPV, minFreshInterval.value);
+};
+}; // end function chkAllTPV
 
 
 
