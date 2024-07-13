@@ -53,11 +53,11 @@ plugin.schema = {
 							'type': 'string',
 							'title': 'Will be displayed as Wind direction:',
 							'enum': [
-								'Apparent wind (AW)',
+								'Apparent wind (AWA)',
 								'True wind through water (TWA)',
-								'True wind (TW)',
-								'True wind magnetic (TWM)',
 								'True wind through ground (GWA)',
+								'Wind direction true (TWD)',
+								'Wind direction magnetic (MWD)',
 								'none'
 							],
 							'default': 'Apparent wind (AW)'
@@ -384,7 +384,7 @@ else if(options.trackProp.feature.includes('HC')) {
  только один вариант показывается 
 */
 let trueWind = 'false';
-if(options.wind.direction.feature.includes('AW')) {	// вымпельный ветер
+if(options.wind.direction.feature.includes('(AWA)')) {	// вымпельный ветер
 	optionsjs += `
 	'wangle' : {
 		'signalkPath': 'environment.wind.angleApparent',
@@ -407,7 +407,7 @@ if(options.wind.direction.feature.includes('AW')) {	// вымпельный ве
 	},
 `;
 }
-else if(options.wind.direction.feature.includes('(TW)')) {
+else if(options.wind.direction.feature.includes('(TWD)')) {
 	trueWind = 'true';
 	optionsjs += `
 	'wangle' : {
@@ -431,7 +431,7 @@ else if(options.wind.direction.feature.includes('(TW)')) {
 	},
 `;
 }
-else if(options.wind.direction.feature.includes('TWM')) {
+else if(options.wind.direction.feature.includes('(MWD)')) {
 	// только если курс или путевой угол магнитный
 	if(options.trackProp.feature.includes('CGM') || options.trackProp.feature.includes('HM' || options.trackProp.feature.includes('HC'))){
 		trueWind = 'true';

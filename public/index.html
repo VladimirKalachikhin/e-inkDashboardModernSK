@@ -227,30 +227,35 @@ for(let props of SKdata.updates){
 			}
 
 			// Приведение к нормальным размерностям и запись в буфер
-			if(!tpv[tpvName]) tpv[tpvName] = {};
 			//console.log('[websocketOnMessage] tpvName=',tpvName,'prop.path=',prop.path,'prop.value:',prop.value,'displayData[tpvName].multiplicator)=',displayData[tpvName].multiplicator);
-			if((prop.value !== null) && displayData[tpvName].multiplicator) tpv[tpvName].value =  prop.value * displayData[tpvName].multiplicator
-			else tpv[tpvName].value =  prop.value;
-			// костыль для относительных направлений ветра
-			if(displayData[tpvName].signalkPath.includes('angleTrueGround')) {	// истинный ветер, в русской терминологии
-				if(tpv['track'] && tpv['track'].value !== null && tpv['track'].value !== undefined) {
-					tpv[tpvName].value += tpv['track'].value;
-				}
-				else if(tpv['heading'] && tpv['heading'].value !== null && tpv['heading'].value !== undefined) {
-					tpv[tpvName].value += tpv['heading'].value;
-				};
-				console.log('[websocketOnMessage] angleTrueGround tpvName=',tpvName,'value',tpv[tpvName].value);
-			}
-			else if(displayData[tpvName].signalkPath.includes('angleTrueWater')) {	// истинный ветер, но?
+			// костыль для абсолютного направлений ветра. Привёдём его к относительным.
+			if(displayData[tpvName].signalkPath.includes('wind.directionTrue')) {	// абсолютный ветер The wind direction relative to true north
 				if(tpv['heading'] && tpv['heading'].value !== null && tpv['heading'].value !== undefined) {
-					tpv[tpvName].value += tpv['heading'].value;
+					if(!tpv['wangle']) tpv['wangle'] = {};
+					tpv['wangle'].value = prop.value * displayData['wangle'].multiplicator - tpv['heading'].value;
+					if(tpv['wangle'].value >= 360) tpv['wangle'].value -= 360;
+					else if(tpv['wangle'].value < 0) tpv['wangle'].value += 360;
+					tpv['wangle'].timestamp =  Date.parse(props.timestamp);
 				}
 				else if(tpv['track'] && tpv['track'].value !== null && tpv['track'].value !== undefined) {
-					tpv[tpvName].value += tpv['track'].value;
+					if(!tpv['wangle']) tpv['wangle'] = {};
+					tpv['wangle'].value = prop.value * displayData['wangle'].multiplicator - tpv['track'].value;
+					if(tpv['wangle'].value >= 360) tpv['wangle'].value -= 360;
+					else if(tpv['wangle'].value < 0) tpv['wangle'].value += 360;
+					tpv['wangle'].timestamp =  Date.parse(props.timestamp);
 				};
-				console.log('[websocketOnMessage] angleTrueWater tpvName=',tpvName,'value',tpv[tpvName].value);
+				//console.log('[websocketOnMessage] directionTrue wangle value',tpv[tpvName].value);
+			}
+			//else if(displayData[tpvName].signalkPath.includes('wind.directionMagnetic')) {	// абсолютный ветер The wind direction relative to magnetic north
+				// а тут ничего не надо делать, потому что указание wind.directionMagnetic
+				// сработает, только если указаны варианты heading magnetic
+			//}
+			else{
+				if(!tpv[tpvName]) tpv[tpvName] = {};
+				if((prop.value !== null) && displayData[tpvName].multiplicator) tpv[tpvName].value =  prop.value * displayData[tpvName].multiplicator
+				else tpv[tpvName].value =  prop.value;
+				tpv[tpvName].timestamp =  Date.parse(props.timestamp);
 			};
-			tpv[tpvName].timestamp =  Date.parse(props.timestamp);
 			changedTPV.push(tpvName);
 
 			/*/// FOR TEST
