@@ -6,7 +6,7 @@
 
 **WARNING! No information shown or not shown by this application may serve as a basis for an action or inaction of the shipmaster.**
 
-## v. 0.1
+## v. 0.2
 Contents:  
 - [Features](#features)
 - - [Direction](#direction)
@@ -29,11 +29,11 @@ If data are available, the following directions and values may be shown:
 ### Direction
 One of the following values can be selected as the direction in the application configuration:
 
-* Course over ground (COG)
-* Course over ground magnetic (CGM)
-* Heading true (HT)
-* Heading magnetic (HM)
-* Heading compass (HC)
+* Course over ground
+* Course over ground magnetic
+* Heading true
+* Heading magnetic
+* Heading compass
 
 The Course over ground is default value because this is commonly reported by the GPS receiver.
 
@@ -49,11 +49,11 @@ For your reference, the exact wind speed is indicated above the bottom edge of t
 
 One of the following values may be specified as the wind:
 
-* Apparent wind (AW)
-* True wind through water (TWA)
-* True wind (TW)
-* True wind magnetic (TWM)
-* True wind through ground (GWA)
+* Apparent wind
+* True wind through water
+* True wind through ground
+* Wind direction true
+* Wind direction magnetic
 * none
 
 The default value is the Apparent wind.
@@ -81,11 +81,11 @@ When using [naiveGPXlogger](https://www.npmjs.com/package/naivegpxlogger) it is 
 ### In screen corners
 One of the following values may be displayed in each of the four corners of the screen, if the SignalK server has the information:
 
-* Speed ower ground (SOG)
-* Speed through water (STW)
-* Depth below surface (DBS)
-* Depth below keel (DBK)
-* Depth below transducer (DBT)
+* Speed ower ground
+* Speed through water
+* Depth below surface
+* Depth below keel
+* Depth below transducer
 * Engine 1 revolutions
 * Engine 1 temperature
 * Engine 2 revolutions

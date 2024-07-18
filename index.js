@@ -60,7 +60,7 @@ plugin.schema = {
 								'Wind direction magnetic (MWD)',
 								'none'
 							],
-							'default': 'Apparent wind (AW)'
+							'default': 'Apparent wind (AWA)'
 						},
 						'maxRefreshInterval': {
 							'type': 'number',
