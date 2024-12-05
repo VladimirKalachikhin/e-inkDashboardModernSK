@@ -5,7 +5,7 @@ var plugin = {};
 var versionTXT = '';
 
 plugin.id = 'e-inkDashboardModern';
-plugin.name = 'e-inkDashboardmodern';
+plugin.name = 'e-inkDashboardModern';
 plugin.description = 'Dashboard for modern powerful JavaScript-enabled e-ink devices with some Signal K instruments';
 
 plugin.schema = {

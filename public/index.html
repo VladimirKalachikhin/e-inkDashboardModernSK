@@ -93,7 +93,6 @@
 <script>
 //compassCard.style.transform = 'rotate(30deg)';
 //console.log(displayData);
-
 var mobPosition=null;	// информация о режиме MOB: маркер из GaladrilMap или что-то ещё
 var tpv = {};
 var mobPosition = {};
@@ -258,8 +257,9 @@ for(let props of SKdata.updates){
 			};
 			changedTPV.push(tpvName);
 
+			//if(tpvName == 'collisions') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
+			//if(tpvName=='collisions') console.log('[websocketOnMessage] tpvName=',tpvName,'Время данных, полученное от',props.source.type,props.source.sentence,'устарело на',(Date.now()-tpv[tpvName].timestamp)/1000,'сек.');
 			/*/// FOR TEST
-			//if(tpvName=='speed') console.log('[websocketOnMessage] tpvName=',tpvName,'Время данных, полученное от',props.source.type,props.source.sentence,'устарело на',(Date.now()-tpv[tpvName].timestamp)/1000,'сек.');
 			{ const dt = (Date.now()-tpv[tpvName].timestamp)/1000;
 				// По GGA SK ставит отметку времени на 5 суток вперёд? Возможно, проблема в naiveNMEAdaemon.php
 				if(dt<0) console.log('[websocketOnMessage] tpvName=',tpvName,'Время данных, полученное от',props.source.type,props.source.sentence,'устарело на',(Date.now()-tpv[tpvName].timestamp)/1000,'сек.');
@@ -276,6 +276,7 @@ for(let props of SKdata.updates){
 			chkTPV(tpvName,checksTPV);
 
 			//if(tpvName == 'wangle') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
+			//if(tpvName == 'nextPoint') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName],'tpv.position:',JSON.stringify(tpv.position));
 		}
 	}
 }

@@ -224,9 +224,9 @@ body {
 	
 	/*border: solid red;*/
 	
-	container-type: inline-size;	/*  */
-	width: var(--out-width);
-	height: var(--out-width);
+	/* Определим этот блок как containing block, потому что grod block не является таковым? 
+	А раньше являлся?*/
+	position: relative;	
 	grid-column-start: 2;
 	grid-column-end: 5;
 	grid-row-start: 2;
@@ -242,8 +242,11 @@ body {
 	width: var(--center-icon-size);
 
 	position: absolute;
+	/* Я не знаю, почему так, и чем отличается этот блок от center_icon */
 	top: calc(var(--out-width)/2 - var(--center-icon-size)/2);
-	left: calc(var(--out-width)/2 - var(--center-icon-size)/2);
+	/*top: calc(50% - var(--center-icon-size)/2);*/
+	/*left: calc(var(--out-width)/2 - var(--center-icon-size)/2);*/
+	left: calc(50% - var(--center-icon-size)/2);
 
 	/*border:solid green;*/
 }
@@ -343,6 +346,7 @@ body {
 	position: absolute;
 	top: 2px;
 	left: calc(var(--out-width)/2 + 2px);
+	/*left: 50%;*/
 }
 
 /* Центральная картинка */

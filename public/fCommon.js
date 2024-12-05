@@ -177,54 +177,60 @@ for(let tpvName of changedTPV){
 		collisionArrows.innerHTML = '';
 		rightBottomBlock.innerHTML = '';
 		//console.log('осталось',collisionArrows.children.length)
-		if(tpv.collisions && tpv.collisions.value){
-			//console.log('collisions:',tpv.collisions.value);
-			let collisions = Object.entries(tpv.collisions.value.vessels).sort(function(a,b){return a[1].dist - b[1].dist;});	// сортировка по дистанции, collisions - массив массивов из двух элементов, первый - бывший ключ, второй - бывшее значение
-			//console.log('sorted collisions:',collisions);
-			let minDist=Math.floor(collisions[0][1].dist+1),maxDist,step;
-			if(collisions.length > 1){
-				minDist = Math.floor(collisions[1][1].dist);
-				maxDist = Math.floor(collisions[collisions.length-1][1].dist)+1;
-				step = (maxDist-minDist)/4;
+		//console.log('collisions:',tpv.collisions);
+		if(tpv.collisions){
+			if(tpv.collisions.value){	// есть состояние collision, пришли новые данные
+				//console.log('есть состояние collision, пришли новые данные collisions:',tpv.collisions.value);
+				let collisions = Object.entries(tpv.collisions.value.vessels).sort(function(a,b){return a[1].dist - b[1].dist;});	// сортировка по дистанции, collisions - массив массивов из двух элементов, первый - бывший ключ, второй - бывшее значение
+				//console.log('sorted collisions:',collisions);
+				let minDist=Math.floor(collisions[0][1].dist+1),maxDist,step;
+				if(collisions.length > 1){
+					minDist = Math.floor(collisions[1][1].dist);
+					maxDist = Math.floor(collisions[collisions.length-1][1].dist)+1;
+					step = (maxDist-minDist)/4;
+				}
+				//console.log('minDist=',minDist,'maxDist=',maxDist,'step=',step);
+				let nearestDist = '';
+				for(let collision of collisions){
+					const arrow = collisionArrow.cloneNode(true);
+					arrow.id = collision[0];
+					collisionArrows.appendChild(arrow);
+					arrow.style.display = null;
+					arrow.style.transform = `rotate(${collision[1].bearing}deg)`;
+					//console.log(arrow);
+					if(collision[1].dist < minDist) {
+						//console.log('Ближайший');
+						nearestDist = collision[1].dist
+					}
+					else if((collision[1].dist > minDist) && (collision[1].dist < (minDist+step))) {
+						//console.log('Близкий');
+						arrow.style.width = 'var(--collisionArrowWidthNormal)';
+						arrow.style.left = 'var(--collisionArrowLeftNormal)';
+					}
+					else if((collision[1].dist > (minDist+step)) && (collision[1].dist < (minDist+2*step))) {
+						//console.log('Средний');
+						arrow.style.width = 'var(--collisionArrowWidthSmall)';
+						arrow.style.left = 'var(--collisionArrowLeftSmall)';
+					}
+					else {
+						//console.log('Дальний');
+						arrow.style.width = 'var(--collisionArrowWidthLitle)';
+						arrow.style.left = 'var(--collisionArrowLeftLitle)';
+					}
+					//console.log('tpv collisions',collision[1].dist);
+				}
+				// Расстояние до ближайшей опасности в правом нижнем углу
+				rightBottomBlock.style.display = 'inherit';
+				rightBottomBlock.innerHTML = `${nearestDist.toFixed(displayData.collisions.precision)}<span style="font-size:var(--ltl1-font-size);"><br>${dashboardCollisionAlarmTXT}, ${dashboardAlarmDistanceMesTXT}</span>`;
+				rightBottomBlock.classList.add('rightBottomFrameBlinker');
 			}
-			//console.log('minDist=',minDist,'maxDist=',maxDist,'step=',step);
-			let nearestDist = '';
-			for(let collision of collisions){
-				const arrow = collisionArrow.cloneNode(true);
-				arrow.id = collision[0];
-				collisionArrows.appendChild(arrow);
-				arrow.style.display = null;
-				arrow.style.transform = `rotate(${collision[1].bearing}deg)`;
-				//console.log(arrow);
-				if(collision[1].dist < minDist) {
-					//console.log('Ближайший');
-					nearestDist = collision[1].dist
-				}
-				else if((collision[1].dist > minDist) && (collision[1].dist < (minDist+step))) {
-					//console.log('Близкий');
-					arrow.style.width = 'var(--collisionArrowWidthNormal)';
-					arrow.style.left = 'var(--collisionArrowLeftNormal)';
-				}
-				else if((collision[1].dist > (minDist+step)) && (collision[1].dist < (minDist+2*step))) {
-					//console.log('Средний');
-					arrow.style.width = 'var(--collisionArrowWidthSmall)';
-					arrow.style.left = 'var(--collisionArrowLeftSmall)';
-				}
-				else {
-					//console.log('Дальний');
-					arrow.style.width = 'var(--collisionArrowWidthLitle)';
-					arrow.style.left = 'var(--collisionArrowLeftLitle)';
-				}
-				//console.log('tpv collisions',collision[1].dist);
-			}
-			// Расстояние до ближайшей опасности в правом нижнем углу
-			rightBottomBlock.style.display = 'inherit';
-			rightBottomBlock.innerHTML = `${nearestDist.toFixed(displayData.collisions.precision)}<span style="font-size:var(--ltl1-font-size);"><br>${dashboardCollisionAlarmTXT}, ${dashboardAlarmDistanceMesTXT}</span>`;
-			rightBottomBlock.classList.add('rightBottomFrameBlinker');
-		}
-		else {
-			rightBottomBlock.classList.remove('rightBottomFrameBlinker');
-		}
+			else {	// состояние collision прекратилось
+				//console.log('состояние collision прекратилось collisions:',tpv.collisions);
+				delete tpv.collisions;
+				//console.log('collisions:',tpv.collisions);
+				rightBottomBlock.classList.remove('rightBottomFrameBlinker');
+			};
+		};
 		break;
 	case 'mob':
 		//console.log('mob:',JSON.stringify(tpv.mob));
@@ -798,8 +804,10 @@ function chkTPV(tpvName,checksTPV={}) {
 */
 let changed=false;
 if(!displayData[tpvName].fresh) return changed;	// если нет срока годности -- данные всегда свежие
+if(displayData[tpvName].value === null || displayData[tpvName].value === undefined) return changed;	// отсутствующие данные всегда свежие
+
 const dt = Date.now()-tpv[tpvName].timestamp;
-//if(tpvName=='track') console.log('[chkTPV] tpvName=',tpvName,'displayData[tpvName].fresh=',displayData[tpvName].fresh,'Время данных',tpv[tpvName].timestamp,'устарело на',(Date.now()-tpv[tpvName].timestamp)/1000,'сек.');
+//if(tpvName=='collisions') console.log('[chkTPV] tpvName=',tpvName,'displayData[tpvName].fresh=',displayData[tpvName].fresh,'Время данных',tpv[tpvName].timestamp,'устарело на',(Date.now()-tpv[tpvName].timestamp)/1000,'сек.');
 if(tpv[tpvName] && ((dt > displayData[tpvName].fresh) || dt < 0)){	// dt меньше 0 - это фигня какая-то... Почему?
 	console.log('Property',tpvName,'is',(Date.now()-tpv[tpvName].timestamp)/1000,'sec. old, but should be no more than',displayData[tpvName].fresh/1000,'sec.');
 	delete tpv[tpvName]; 	// 
