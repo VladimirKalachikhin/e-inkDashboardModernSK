@@ -56,7 +56,7 @@ if(!changedTPV) changedTPV = Object.keys(displayData);
 //tpv.heading.value += 45;
 //if(tpv.track) tpv.heading.value = tpv.track.value + 45;
 /* END FOR TEST*/
-for(let tpvName of changedTPV){
+byChangedTPV: for(let tpvName of changedTPV){
 	// оказывается, case -- не блок, и объявленные внутри case переменные видимы во всём switch
 	let str='',htmlBLock;
 	let strPropLabel='',strPropVal='';
@@ -233,71 +233,34 @@ for(let tpvName of changedTPV){
 		};
 		break;
 	case 'mob':
-		//console.log('mob:',JSON.stringify(tpv.mob));
+		console.log('[display] in mob data:',JSON.stringify(tpv.mob));
 		// Похоже, что автор Freeboard-SK индус. В любом случае - он дебил, и
 		// разницы между выключением режима и сменой режима не видит.
 		// Поэтому он выключает режим MOB установкой value.state = "normal"
 		// вместо value = null, как это указано в документации.
+		// Вряд ли он знал, что точки в выключенном MOB понадобятся, чтобы разобраться, где свои
+		// точки, где чужие, а где - AIS SART.
+		// Поэтому, хоть он и индус, но я теперь тоже выключаю режим MOB установкой value.state = "normal",
+		// оставляя точки.
 		if(tpv.mob && tpv.mob.value && (tpv.mob.value.state != "normal")){	// режим MOB есть
 			//console.log('mob:',tpv.mob.value);
 			// mob as described https://github.com/SignalK/signalk-server/pull/1560
 			// при этом у этих кретинов может быть "position": "No vessel position data."
-			if(tpv.mob.value.data && tpv.mob.value.data.position){	
-				mobPosition = {'longitude': tpv.mob.value.data.position.longitude,'latitude': tpv.mob.value.data.position.latitude,'nogeojson': true};
-			}
-			else if(tpv.mob.value.position && tpv.mob.value.position.features){	// Это GeoJSON, вероятно, от GaladrielMap
-				// поищем точку, указанную как текущая
-				let point;
-				for(point of tpv.mob.value.position.features){	// там не только точки, но и LineString
-					if((point.geometry.type == "Point")  && point.properties && point.properties.current){
-						mobPosition = {'longitude': point.geometry.coordinates[0],'latitude': point.geometry.coordinates[1]};
-						break;
-					}
+			mobPosition=null;	// если режим есть, и пришло что-то новое, знаяит, старое неактуально?
+			mobMarkerJSON = MOBtoGeoJSON(tpv.mob.value);	// имена унаследованы из GaladrielMap
+			console.log('[display] mobMarkerJSON:',JSON.stringify(mobMarkerJSON));
+			if(mobMarkerJSON){
+				for(const point of mobMarkerJSON.features){
+					if(point.geometry.type != 'Point') continue;
+					if(!point.properties.current) continue;
+					mobPosition = {'longitude': point.geometry.coordinates[0],'latitude': point.geometry.coordinates[1]};
+					break;
 				};
-				// Но кто-то левый может прислать GeoJSON без указания текущей точки. Тогда текущей станет последняя.
-				if(!mobPosition) mobPosition = {'longitude': point.geometry.coordinates[0],'latitude': point.geometry.coordinates[1]};
-				
-			}
-			else {
-				if(tpv.mob.value.position){
-					const s = JSON.stringify(tpv.mob.value.position);
-					if(s.includes('longitude') && s.includes('latitude')){
-						mobPosition = {'longitude': tpv.mob.value.position.longitude,'latitude': tpv.mob.value.position.latitude,'nogeojson': true};
-					}
-					else if(s.includes('lng') && s.includes('lat')){
-						mobPosition = {'longitude': tpv.mob.value.position.lng,'latitude': tpv.mob.value.position.lat,'nogeojson': true};
-					}
-					else if(s.includes('lon') && s.includes('lat')){
-						mobPosition = {'longitude': tpv.mob.value.position.lon,'latitude': tpv.mob.value.position.lat,'nogeojson': true};
-					}
-					else if(Array.isArray(tpv.mob.value.position)){
-						mobPosition = {'longitude': tpv.mob.value.position[0],'latitude': tpv.mob.value.position[1],'nogeojson': true};
-					};
-				}
-				else{
-					const s = JSON.stringify(tpv.mob.value);
-					if(s.includes('longitude') && s.includes('latitude')){
-						mobPosition = {'longitude': tpv.mob.value.longitude,'latitude': tpv.mob.value.latitude,'nogeojson': true};
-					}
-					else if(s.includes('lng') && s.includes('lat')){
-						mobPosition = {'longitude': tpv.mob.value.lng,'latitude': tpv.mob.value.lat,'nogeojson': true};
-					}
-					else if(s.includes('lon') && s.includes('lat')){
-						mobPosition = {'longitude': tpv.mob.value.lon,'latitude': tpv.mob.value.lat,'nogeojson': true};
-					}
-					else if(Array.isArray(tpv.mob.value)){
-						mobPosition = {'longitude': tpv.mob.value[0],'latitude': tpv.mob.value[1],'nogeojson': true};
-					};
-				};
-				if(mobPosition){
-					mobPosition.longitude = parseFloat(mobPosition.longitude);
-					mobPosition.latitude = parseFloat(mobPosition.latitude);
-					if(isNaN(mobPosition.longitude) || isNaN(mobPosition.latitude)) mobPosition = null;
-				}
-			}
+			};
 			//console.log('The MOB is raised, mobPosition:',mobPosition);
 		}
 		else {	// режима MOB нет
+			mobMarkerJSON = null;
 			mobPosition = null;
 			leftBottomBlock.innerHTML = '';
 			leftBottomBlock.classList.remove('leftBottomFrameBlinker');
@@ -431,8 +394,8 @@ for(let tpvName of changedTPV){
 		htmlBLock.style.display = 'inherit';
 		htmlBLock.innerHTML = str;
 		break;
-	}
-}
+	};
+};
 
 function displayNextPoint(){
 const azimuth = bearing(tpv.position.value, tpv.nextPoint.value.position);
@@ -644,7 +607,7 @@ if(tpv.mob && tpv.mob.value && (tpv.mob.value.state != "normal")){	// режим
 	bottomOnButtonMessage.innerHTML = `
 	<br>
 	`;
-	if(mobPosition && !mobPosition.nogeojson) bottomOnButtonMessage.innerHTML += `<div class="messageButton" style="width: 60%;margin:1em 0;" onclick="sendMOBtoServer(true,tpv.mob.value.position);"><img src="img/mob.svg"> ${dashboardMOBbuttonAddTXT}</div>`;
+	if(mobPosition) bottomOnButtonMessage.innerHTML += `<div class="messageButton" style="width: 60%;margin:1em 0;" onclick="sendMOBtoServer(true);"><img src="img/mob.svg"> ${dashboardMOBbuttonAddTXT}</div>`;
 	bottomOnButtonMessage.innerHTML += `
 	<div class="messageButton" style="width: 20%;" onclick="sendMOBtoServer(false);"> ✘ ${dashboardMOBbuttonCancelTXT}</div>
 	`;
@@ -661,33 +624,119 @@ function closebottomOnButtonMessage(){
 bottomOnButtonMessage.style.display = 'none';
 } // end function closebottomOnButtonMessage
 
-function sendMOBtoServer(status=true,mobMarkerJSON=null){
-/* */
-//console.log("[sendMOBtoServer] status=",status,'tpv.position:',tpv.position);
-if (typeof mobMarkerJSON == "string") {
-	try	{mobMarkerJSON = JSON.parse(mobMarkerJSON);}
-	catch(error) {mobMarkerJSON = null;};
-};
 
-let delta;
+function sendMOBtoServer(status=true){
+/* */
+console.log("[sendMOBtoServer] status=",status,'tpv.position:',tpv.position,'mobMarkerJSON:',mobMarkerJSON);
 if(status) {	// нужно открыть режим "человек за бортом"
 	// Есть координаты
-	if(tpv.position && tpv.position.value && tpv.position.value.latitude && tpv.position.value.longitude){
-		if(mobMarkerJSON){	// передали точки, надо добавить
-			// это GeoJSON, считаем, что GaladrielMap
-			// На другие варианты забъём за отсутствием. Может быть, когда нибудь....
-			if(mobMarkerJSON.type == "FeatureCollection"){
-				mobMarkerJSON.features.push({
-						"type": "Feature",
-						"geometry": {
-							"type": "Point",
-							"coordinates": [tpv.position.value.longitude,tpv.position.value.latitude]
-						}
-					}
-				);
+	let coordinates = [];	// если нет координат, то Leaflet такую точку просто не показывает.
+	if(tpv.position && tpv.position.value && tpv.position.value.latitude && tpv.position.value.longitude) coordinates = [tpv.position.value.longitude,tpv.position.value.latitude];
+	if(mobMarkerJSON && mobMarkerJSON.state != 'normal'){	// передали точки, надо добавить
+		mobMarkerJSON.features.push({
+			"type": "Feature",
+			"geometry": {
+				"type": "Point",
+				"coordinates": coordinates
+			},
+			"properties": {
+				"current": true
 			}
+		});
+	}
+	else {	// новая единственная точка
+		mobMarkerJSON = {
+			"type": "FeatureCollection",
+			"features": [
+				{
+					"type": "Feature",
+					"geometry": {
+						"type": "Point",
+						"coordinates": coordinates
+					},
+					"properties": {
+						"current": true
+					}
+				}
+			],
+			"properties": {
+			}
+		};
+	};
+};
+mobMarkerJSON.properties.timestamp = Math.round(Date.now()/1000);
+let delta = GeoJSONtoMOB(mobMarkerJSON,status,'e-inkDashboardModern');
+//console.log('[sendMOBtoServer] delta:',delta);
+if(socket.readyState == 1) {
+	socket.send(JSON.stringify(delta));
+};
+}; // end function sendMOBtoServer
+
+// Следующие две функции из galadrielmap,js, и лучше оставить их такими.
+// разьираться с дурацкой системой модулей в javascript & nodejs мне лень.
+function MOBtoGeoJSON(MOBdata){
+/* Переделывает объект MOB из формата SignalK notifications.mob в mobMarkerJSON: Leaflet GeoJSON для GaladrielMap */
+//console.log('[MOBtoGeoJSON] MOBdata:',MOBdata);
+let mobMarkerJSON=null;
+let timestamp=null;
+if(MOBdata.position && MOBdata.position.properties){	// Это GeoJSON
+	timestamp = MOBdata.position.properties.timestamp;
+}
+else if(MOBdata.data && MOBdata.data.timestamp){	// это alarm от Freeboard
+	timestamp = Math.round(Date.parse(MOBdata.data.timestamp)/1000);
+}
+else if(MOBdata.timestamp){
+	timestamp = Math.round(Date.parse(MOBdata.timestamp)/1000);
+};
+//console.log('[MOBtoGeoJSON] timestamp:',timestamp);
+if(MOBdata.position && MOBdata.position.features){	// Это GeoJSON
+	mobMarkerJSON = MOBdata.position;	// Это GeoJSON
+	if(!mobMarkerJSON.properties) mobMarkerJSON.properties = {};
+	mobMarkerJSON.properties.timestamp = timestamp;	// Если я правильно понимаю, это будет штамп последнего изменения в любом случае, потому что цикл по источникам в порядке поступления изменений?
+}
+else{
+	let mobPosition; 
+	if(MOBdata.data && MOBdata.data.position){	// это alarm от Freeboard
+		// mob as described https://github.com/SignalK/signalk-server/pull/1560
+		// при этом у этих кретинов может быть "position": "No vessel position data."
+		mobPosition = {'longitude': MOBdata.data.position.longitude,'latitude': MOBdata.data.position.latitude};
+	}
+	else {
+		if(MOBdata.position){
+			const s = JSON.stringify(MOBdata.position);
+			if(s.includes('longitude') && s.includes('latitude')){
+				mobPosition = {'longitude': MOBdata.position.longitude,'latitude': MOBdata.position.latitude};
+			}
+			else if(s.includes('lng') && s.includes('lat')){
+				mobPosition = {'longitude': MOBdata.position.lng,'latitude': MOBdata.position.lat};
+			}
+			else if(s.includes('lon') && s.includes('lat')){
+				mobPosition = {'longitude': MOBdata.position.lon,'latitude': MOBdata.position.lat};
+			}
+			else if(Array.isArray(MOBdata.position)){
+				mobPosition = {'longitude': MOBdata.position[0],'latitude': MOBdata.position[1]};
+			};
 		}
-		else {	// новая единственная точка
+		else{
+			const s = JSON.stringify(MOBdata);
+			if(s.includes('longitude') && s.includes('latitude')){
+				mobPosition = {'longitude': MOBdata.longitude,'latitude': MOBdata.latitude};
+			}
+			else if(s.includes('lng') && s.includes('lat')){
+				mobPosition = {'longitude': MOBdata.lng,'latitude': MOBdata.lat};
+			}
+			else if(s.includes('lon') && s.includes('lat')){
+				mobPosition = {'longitude': MOBdata.lon,'latitude': MOBdata.lat};
+			}
+			else if(Array.isArray(MOBdata)){
+				mobPosition = {'longitude': MOBdata[0],'latitude': MOBdata[1]};
+			};
+		};
+	};
+	if(mobPosition){
+		mobPosition.longitude = parseFloat(mobPosition.longitude);
+		mobPosition.latitude = parseFloat(mobPosition.latitude);
+		if(!(isNaN(mobPosition.longitude) || isNaN(mobPosition.latitude))){
 			mobMarkerJSON = {
 				"type": "FeatureCollection",
 				"features": [
@@ -695,59 +744,64 @@ if(status) {	// нужно открыть режим "человек за бор
 						"type": "Feature",
 						"geometry": {
 							"type": "Point",
-							"coordinates": [tpv.position.value.longitude,tpv.position.value.latitude]
+							"coordinates": [
+								mobPosition.longitude,
+								mobPosition.latitude
+							]
 						},
 						"properties": {
-							"current": true
+							"current": true,
+							"mmsi": '',	// пусто - значит, это MOB свой, и кто-нибудь там поправит
+							"safety_related_text": ''
 						}
 					}
-				]
+				],
+				"properties": {
+					"timestamp": timestamp
+				}
 			};
 		};
 	};
-	delta = {
-		"context": "vessels.self",
-		"updates": [
-			{
-				"values": [
-					{
-						"path": "notifications.mob",
-						"value": {
-							"method": ["visual", "sound"],
-							"state": "emergency",
-							"message": "A man overboard!",
-							"source": instanceSelf,
-							"position": mobMarkerJSON
-						},
-					}
-				],
-				"timestamp": new Date().toISOString(),
-			}
-		]
-	};
-}
-else {
-	delta = {
-		"context": "vessels.self",
-		"updates": [
-			{
-				"values": [
-					{
-						"path": "notifications.mob",
-						"value": null
-					}
-				],
-				"timestamp": new Date().toISOString(),
-			}
-		]
-	};
 };
+//console.log('[MOBtoGeoJSON] mobMarkerJSON:',mobMarkerJSON);
+return mobMarkerJSON;
+}; // end function MOBtoGeoJSON
 
-//console.log('[sendMOBtoServer] delta:',delta);
-if(socket.readyState == 1) {
-	socket.send(JSON.stringify(delta));
+function GeoJSONtoMOB(mobMarkerJSON,status,label='galadrielmap_sk'){
+/* Переделывает Leaflet GeoJSON мультислоя mobMarker в delta формата SignalK для MOB 
+mobMarkerJSON содержит исчерпывающие данные MOB или false
+*/
+//console.log('[GeoJSONtoMOB] mobMarkerJSON:',mobMarkerJSON);
+let delta = {
+	"context": 'vessels.self',
+	"updates": [
+		{
+			"values": [
+				{
+					"path": "notifications.mob",
+					"value": {
+						"method": [],
+						"state": "normal",
+						"message": "",
+						"source": typeof instanceSelf !== 'undefined' ? instanceSelf : plugin.id,
+						"position": mobMarkerJSON
+					}
+				}
+			],
+			"source": {"label": label},
+			"timestamp": status ? new Date(mobMarkerJSON.properties.timestamp*1000).toISOString() : new Date().toISOString(),	// Мы завершаем MOB именно сейчас.
+		}
+	]
 };
-}; // end function sendMOBtoServer
+if(status) {
+	delta.updates[0].values[0].value.method = ["visual", "sound"];
+	delta.updates[0].values[0].value.state = "emergency";
+	delta.updates[0].values[0].value.message = "A man overboard!";
+};
+//console.log('[GeoJSONtoMOB] delta:',delta);
+return delta;
+}; // end function GeoJSONtoMOB
+
 
 
 

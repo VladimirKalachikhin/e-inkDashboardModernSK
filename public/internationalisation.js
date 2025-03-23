@@ -52,68 +52,72 @@
 //	var dashboardMOBTXT = 'A man overboard!';
 
 function internationalisation() {
-//
-//console.log('navigator.language:',navigator.language);
-let i18nFileName = navigator.language.split(',',1)[0].split(';',1)[0].split('-',1)[0].toLowerCase()+'.json';	// хотя она и так должна быть LowerCase, но то должна.
-//console.log('i18nFileName=',i18nFileName);
-//i18nFileName = 'en'
-
-xhr = new XMLHttpRequest();
-xhr.open('GET', 'internationalisation/'+i18nFileName, false); 	// оно должно заполнить переменные до загрузки options.js, поэтому синхронно
-xhr.send();
-if (xhr.status == 200) { 	// Успешно
-	let i18n;
-	try {
-		i18n = JSON.parse(xhr.responseText); 	// 
-	}
-	catch(error) {
-		console.error('Get localisation strings Error:', error);
-		return;
+/**/
+let i18nFileNames = navigator.language.split(',').map((l)=>l.split(';')[0]);
+// Здесь игнорируются двойные локали (en-US), поэтому американскую локализацию сделать нельзя. Удмуртскую тоже.
+i18nFileNames = Array.from(new Set(i18nFileNames.map((l)=>l.split('-')[0].toLowerCase())));	// unique через set
+i18nFileNames.push('en');	// хрен с ним, пусть будет неуникальное
+//console.log('[internalisation] navigator.language=',navigator.language,'i18nFileNames:',i18nFileNames);
+for(const i18nFileName of i18nFileNames){
+	//console.log('i18nFileName=',i18nFileName);
+	xhr = new XMLHttpRequest();
+	xhr.open('GET', 'internationalisation/'+i18nFileName+'.json', false); 	// оно должно заполнить переменные до загрузки options.js, поэтому синхронно
+	xhr.send();
+	if (xhr.status == 200) { 	// Успешно
+		let i18n;
+		try {
+			i18n = JSON.parse(xhr.responseText); 	// 
+		}
+		catch(error) {
+			console.error('Get localisation strings Error:', error);
+			return;
+		};
+		//console.log('[internationalisation] i18n:',i18n);
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+		// Это должно правильно сработать, даже если i18n неправильный.
+		// ошибка при JSON.parse отсечёт явную фигню, остальное здесь.
+		// В результате будут по крайней мере английские подписи, если файл интернационализации
+		// отсутствует, кривой или неполный.
+		({	dashboardCourseTXT,
+			dashboardMagCourseTXT,
+			dashboardHeadingTXT,
+			dashboardMagHeadingTXT,
+			dashboardCompassHeadingTXT,
+			dashboardSpeedTXT,
+			dashboardVaterSpeedTXT,
+			dashboardSpeedMesTXT,
+			dashboardDepthTXT,
+			dashboardKeelDepthTXT,
+			dashboardTransDepthTXT,
+			dashboardDepthMesTXT,
+			dashboardGNSSoldTXT,
+			dashboardCollisionAlarmTXT,
+			dashboardMOBalarmTXT,
+			dashboardMOBbuttonAddTXT,
+			dashboardMOBbuttonCancelTXT,
+			dashboardAlarmDistanceMesTXT,
+			dashboardWindSpeedTXT,
+			dashboardWindSpeedMesTXT,
+			dashboardTrueWindSpeedTXT,
+			dashboardPropStopTXT,
+			dashboardPropRevolutionTXT,
+			dashboardPropRevolutionMesTXT,
+			dashboardPropTemperatureTXT,
+			dashboardTemperatureMesTXT,
+			dashboarAirTemperatureTXT,
+			dashboarAirPressureTXT,
+			dashboardAirPressureMesTXT,
+			dashboarAirHumidityTXT,
+			dashboardAirHumidityMesTXT,
+			dashboarWaterTemperatureTXT,
+			dashboarNextPointTXT,
+			dashboarNextPointMesMTXT,
+			dashboarNextPointMesKMTXT
+		} = i18n);	// () тут обязательно, потому что не var {} = obj, и кривой JavaScript воспринимает {} как блок кода;
+		//console.log('[internationalisation] dashboardCourseTXT=',dashboardCourseTXT);
+		break;
 	};
-	//console.log('[internationalisation] i18n:',i18n);
-	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
-	// Это должно правильно сработать, даже если i18n неправильный.
-	// ошибка при JSON.parse отсечёт явную фигню, остальное здесь.
-	// В результате будут по крайней мере английские подписи, если файл интернационализации
-	// отсутствует, кривой или неполный.
-	({	dashboardCourseTXT,
-		dashboardMagCourseTXT,
-		dashboardHeadingTXT,
-		dashboardMagHeadingTXT,
-		dashboardCompassHeadingTXT,
-		dashboardSpeedTXT,
-		dashboardVaterSpeedTXT,
-		dashboardSpeedMesTXT,
-		dashboardDepthTXT,
-		dashboardKeelDepthTXT,
-		dashboardTransDepthTXT,
-		dashboardDepthMesTXT,
-		dashboardGNSSoldTXT,
-		dashboardCollisionAlarmTXT,
-		dashboardMOBalarmTXT,
-		dashboardMOBbuttonAddTXT,
-		dashboardMOBbuttonCancelTXT,
-		dashboardAlarmDistanceMesTXT,
-		dashboardWindSpeedTXT,
-		dashboardWindSpeedMesTXT,
-		dashboardTrueWindSpeedTXT,
-		dashboardPropStopTXT,
-		dashboardPropRevolutionTXT,
-		dashboardPropRevolutionMesTXT,
-		dashboardPropTemperatureTXT,
-		dashboardTemperatureMesTXT,
-		dashboarAirTemperatureTXT,
-		dashboarAirPressureTXT,
-		dashboardAirPressureMesTXT,
-		dashboarAirHumidityTXT,
-		dashboardAirHumidityMesTXT,
-		dashboarWaterTemperatureTXT,
-		dashboarNextPointTXT,
-		dashboarNextPointMesMTXT,
-		dashboarNextPointMesKMTXT
-	} = i18n);	// () тут обязательно, потому что не var {} = obj, и кривой JavaScript воспринимает {} как блок кода;
-	//console.log('[internationalisation] dashboardCourseTXT=',dashboardCourseTXT);
-}
+};
 }; // end function internalisation
 
 internationalisation();

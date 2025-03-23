@@ -93,9 +93,9 @@
 <script>
 //compassCard.style.transform = 'rotate(30deg)';
 //console.log(displayData);
-var mobPosition=null;	// информация о режиме MOB: маркер из GaladrilMap или что-то ещё
+var mobMarkerJSON;	// информация о режиме MOB: маркер из GaladrilMap
+var mobPosition=null;	// координаты текущего маркера MOB из mobMarkerJSON в формате {"longitude": xx, "latitude": xx}
 var tpv = {};
-var mobPosition = {};
 var socket;
 var minFreshInterval = {"object": null, "value": 999999999999};	// объект setInterval для периодической проверки свежести имеющихся данных
 
@@ -190,7 +190,7 @@ try {
 catch(error) {
 	console.log('Parsing inbound data error: ',error.message);
 	tpv = {};
-	mobPosition = {};
+	mobPosition = null;
 	display();
 	return;
 }
@@ -276,7 +276,7 @@ for(let props of SKdata.updates){
 			chkTPV(tpvName,checksTPV);
 
 			//if(tpvName == 'wangle') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
-			//if(tpvName == 'nextPoint') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName],'tpv.position:',JSON.stringify(tpv.position));
+			//if(tpvName == 'nextPoint') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName],'tpv.position:',JSON.stringify(tpv.position),SKdata);
 		}
 	}
 }
