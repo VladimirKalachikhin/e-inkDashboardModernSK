@@ -26,7 +26,7 @@
 	"dashboardPropRevolutionTXT" : "обороты двигателя",
 	"dashboardPropRevolutionMesTXT" : "об/мин",
 	"dashboardPropTemperatureTXT" : "температура двигателя",
-	"dashboardTemperatureMesTXT" : "°",
+	"dashboardTemperatureMesTXT" : "°C",
 	"dashboarAirTemperatureTXT" : "Наружная температура воздуха",
 	"dashboarAirPressureTXT" : "Атмосферное давление",
 	"dashboardAirPressureMesTXT" : "гПа",
@@ -36,5 +36,43 @@
 
 	"dashboarNextPointTXT" : "Расстояние до следующей навигационной точки",
 	"dashboarNextPointMesMTXT" : "м.",
-	"dashboarNextPointMesKMTXT" : "км."
+	"dashboarNextPointMesKMTXT" : "км.",
+	
+	"courseTypeSelectorLabelTXT" : "Показывать как путевой угол:",
+	"courseTypeSelectorOptionsTXT" : {
+						"track" : "Истинный путевой угол (COG)",
+						"magtrack" : "Магнитный путевой угол (CGM)",
+						"heading" : "Истинный курс (HT)",
+						"mheading" : "Магнитный курс (HM)",
+						"mheadingC" : "Компасный курс (HC)"
+	},
+
+	"windTypeSelectorLabelTXT" : "Показывать как направление ветра:",
+	"windTypeSelectorOptionsTXT" : {"none" : "ничего не показывать",
+						"wangler" : "Вымпельный ветер (AWA)",
+						"wangletW" : "Истинный ветер относительно воды (TWA)",
+						"wanglet" : "Истинный ветер (GWA)",
+						"wdirT" : "Направление ветра (TWD)",
+						"wdirM" : "Направление ветра магнитное (MWD)"
+	},
+
+	"modeSelectorLabelTXT" : "В указанном углу будет отображаться:",
+	"modeSelectorOptionsTXT" : {"none" : "ничего не показывать",
+						"speed" : "Истинная скорость (SOG)",
+						"STW" : "Скорость по лагу (STW)",
+						"DBS" : "Глубина (DBS)",
+						"DBK" : "Глубина под килем (DBK)",
+						"DBT" : "Глубина по лоту (DBT)",
+						"Engine1r" : "Обороты двигателя 1",
+						"Engine1t" : "Температура двигателя 1",
+						"Engine2r" : "Обороты двигателя 2",
+						"Engine2t" : "Температура двигателя 2",
+						"temp" : "Температура воздуха",
+						"airP" : "Атмосферное давление",
+						"airH" : "Относительная влажность воздуха",
+						"waterT" : "Температура воды",
+						"navPoint" : "Навигационная точка"
+	},
+	"modeRefreshIntervalInputTXT" : "Интервал обновления, сек.:",
+	"resetToDefaultButtonTXT" : "Вернуть исходные настройки"
 }

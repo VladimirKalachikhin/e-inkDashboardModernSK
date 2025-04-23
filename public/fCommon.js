@@ -13,14 +13,13 @@ bigBlock(block,bigStyleName)
 updBottomMessages()
 
 MOBalarm()
-closebottomOnButtonMessage()
+closeMOBmessage()
 sendMOBtoServer(status=true)
 
 bearing(latlng1, latlng2)
 equirectangularDistance(from,to)
 
 generateUUID()
-getCookie(name)
 */
 var bottomMessages = {};
 
@@ -80,8 +79,8 @@ byChangedTPV: for(let tpvName of changedTPV){
 			const mobDist = equirectangularDistance(tpv.position.value,mobPosition);
 			//console.log('[display] mobPosition:',mobPosition,'tpv.position:',tpv.position,'mobDist=',mobDist);
 			// Расстояние до MOB в левом нижнем углу
-			leftBottomBlock.style.display = 'inherit';
-			leftBottomBlock.innerHTML = `${mobDist.toFixed(displayData.mob.precision)}<span style="font-size:var(--ltl1-font-size);"><br>${dashboardMOBalarmTXT}, ${dashboardAlarmDistanceMesTXT}</span>`;
+			leftBottomBlock.style.display = '';
+			leftBottomBlock.innerHTML = `${mobDist.toFixed(displayData.mob.precision)}<span style="font-size:var(--ltl1-font-size);"><br>${i18n.dashboardMOBalarmTXT}, ${i18n.dashboardAlarmDistanceMesTXT}</span>`;
 			leftBottomBlock.classList.add('leftBottomFrameBlinker');
 		}
 		if(tpv.nextPoint && tpv.nextPoint.value && tpv.nextPoint.value.position && tpv.position) {	// обновляем следующую путевую точку
@@ -220,8 +219,8 @@ byChangedTPV: for(let tpvName of changedTPV){
 					//console.log('tpv collisions',collision[1].dist);
 				}
 				// Расстояние до ближайшей опасности в правом нижнем углу
-				rightBottomBlock.style.display = 'inherit';
-				rightBottomBlock.innerHTML = `${nearestDist.toFixed(displayData.collisions.precision)}<span style="font-size:var(--ltl1-font-size);"><br>${dashboardCollisionAlarmTXT}, ${dashboardAlarmDistanceMesTXT}</span>`;
+				rightBottomBlock.style.display = '';
+				rightBottomBlock.innerHTML = `${nearestDist.toFixed(displayData.collisions.precision)}<span style="font-size:var(--ltl1-font-size);"><br>${i18n.dashboardCollisionAlarmTXT}, ${i18n.dashboardAlarmDistanceMesTXT}</span>`;
 				rightBottomBlock.classList.add('rightBottomFrameBlinker');
 			}
 			else {	// состояние collision прекратилось
@@ -233,7 +232,7 @@ byChangedTPV: for(let tpvName of changedTPV){
 		};
 		break;
 	case 'mob':
-		console.log('[display] in mob data:',JSON.stringify(tpv.mob));
+		//console.log('[display] in mob data:',JSON.stringify(tpv.mob));
 		// Похоже, что автор Freeboard-SK индус. В любом случае - он дебил, и
 		// разницы между выключением режима и сменой режима не видит.
 		// Поэтому он выключает режим MOB установкой value.state = "normal"
@@ -248,7 +247,7 @@ byChangedTPV: for(let tpvName of changedTPV){
 			// при этом у этих кретинов может быть "position": "No vessel position data."
 			mobPosition=null;	// если режим есть, и пришло что-то новое, знаяит, старое неактуально?
 			mobMarkerJSON = MOBtoGeoJSON(tpv.mob.value);	// имена унаследованы из GaladrielMap
-			console.log('[display] mobMarkerJSON:',JSON.stringify(mobMarkerJSON));
+			//console.log('[display] mobMarkerJSON:',JSON.stringify(mobMarkerJSON));
 			if(mobMarkerJSON){
 				for(const point of mobMarkerJSON.features){
 					if(point.geometry.type != 'Point') continue;
@@ -279,11 +278,11 @@ byChangedTPV: for(let tpvName of changedTPV){
 			htmlBLock.style.display = 'none';	// чтобы и события отключить
 			break;
 		}
-		if(tpvName[tpvName.length-1] == '0') {
+		if(tpvName[tpvName.length-1] == 0) {
 			if(!tpv.propLabel0 && !tpv.propState0) break;	// нет никакой информации об этом двигателе
 			if(tpv.propLabel0 && tpv.propLabel0.value) strPropLabel = `<span style="font-size:var(--ltl1-font-size);">${tpv.propLabel0.value}</span>`;
 			if(tpv.propState0 && tpv.propState0.value == 'stopped'){
-				strPropVal = `<span style="font-size:calc(var(--font-size)*0.7);">${dashboardPropStopTXT}</span>`;	// почему здесь не работает var(--small-font-size) ? 
+				strPropVal = `<span style="font-size:calc(var(--font-size)*0.7);">${i18n.dashboardPropStopTXT}</span>`;	// почему здесь не работает var(--small-font-size) ? 
 			}
 			else {
 				strPropVal = tpv[tpvName].value.toFixed(displayData[tpvName].precision);			
@@ -293,23 +292,23 @@ byChangedTPV: for(let tpvName of changedTPV){
 			if(!tpv.propLabel1 && !tpv.propState1) break;	// нет никакой информации об этом двигателе
 			if(tpv.propLabel1 && tpv.propLabel1.value) strPropLabel = `<span style="font-size:var(--ltl1-font-size);">${tpv.propLabel1.value}</span>`;
 			if(tpv.propState1 && tpv.propState1.value == 'stopped'){
-				strPropVal = `<span style="font-size:calc(var(--font-size)*0.7);">${dashboardPropStopTXT}</span>`;	// почему здесь не работает var(--small-font-size) ? 
+				strPropVal = `<span style="font-size:calc(var(--font-size)*0.7);">${i18n.dashboardPropStopTXT}</span>`;	// почему здесь не работает var(--small-font-size) ? 
 			}
 			else {
 				strPropVal = tpv[tpvName].value.toFixed(displayData[tpvName].precision);			
 			}
 		}
 		if(displayData[tpvName].DOMid.includes('ottom')) {	// указано размещать в нижних углах
-			str += strPropLabel+'<span style="font-size:var(--ltl1-font-size);"><br><br></span>';	// человеческое наименование двигателя из SignalK
+			str += strPropLabel+'<span style="font-size:0.1em;"><br><br></span>';	// человеческое наименование двигателя из SignalK
 			str += strPropVal;
 			if(displayData[tpvName].label) str += `<span style="font-size:var(--ltl1-font-size);"><br>${displayData[tpvName].label}</span>`;
 		}
-		else {
+		else {	// указано размещать в верхних углах
 			if(displayData[tpvName].label) str += `<span style="font-size:var(--ltl1-font-size);">${displayData[tpvName].label}<br><br></span>`;
 			str += strPropVal;
-			str += '<span style="font-size:var(--ltl1-font-size);"><br><br></span>'+strPropLabel;	// человеческое наименование двигателя из SignalK
+			str += '<span style="font-size:0.2em;"><br></span>'+strPropLabel;	// человеческое наименование двигателя из SignalK
 		}
-		htmlBLock.style.display = 'inherit';
+		htmlBLock.style.display = '';
 		htmlBLock.innerHTML = str;
 		break;
 	case 'propTemperature0':
@@ -323,37 +322,38 @@ byChangedTPV: for(let tpvName of changedTPV){
 			htmlBLock.style.display = 'none';	// чтобы и события отключить
 			break;
 		}
-		if(tpvName[tpvName.length-1] == '0') {
+		if(tpvName[tpvName.length-1] == 0) {
 			if(!tpv.propLabel0 && !tpv.propState0) break;	// нет никакой информации об этом двигателе
 			if(tpv.propLabel0 && tpv.propLabel0.value) strPropLabel = `<span style="font-size:var(--ltl1-font-size);">${tpv.propLabel0.value}</span>`;
-			if(tpv.propState0 && tpv.propState0.value == 'stopped'){
-				strPropVal = '<br>&nbsp;';
-			}
-			else {
+			// Почему не показывать температуру, если двигатель остановлен?
+			//if(tpv.propState0 && tpv.propState0.value == 'stopped'){
+				//strPropVal = '<br>&nbsp;';
+			//}
+			//else {
 				strPropVal = (tpv.propTemperature0.value-273.15).toFixed(displayData[tpvName].precision);
-			}
+			//};
 		}
 		else {
 			if(!tpv.propLabel1 && !tpv.propState1) break;	// нет никакой информации об этом двигателе
 			if(tpv.propLabel1 && tpv.propLabel1.value) strPropLabel = `<span style="font-size:var(--ltl1-font-size);">${tpv.propLabel1.value}</span>`;
-			if(tpv.propState1 && tpv.propState1.value == 'stopped'){
-				strPropVal = '<br>&nbsp;';
-			}
-			else {
+			//if(tpv.propState1 && tpv.propState1.value == 'stopped'){
+				//strPropVal = '<br>&nbsp;';
+			//}
+			//else {
 				strPropVal = (tpv.propTemperature0.value-273.15).toFixed(displayData[tpvName].precision);
-			}
+			//};
 		}
 		if(displayData[tpvName].DOMid.includes('ottom')) {	// указано размещать в нижних углах
-			str += strPropLabel+'<span style="font-size:var(--ltl1-font-size);"><br><br></span>';	// человеческое наименование двигателя из SignalK
+			str += strPropLabel+'<span style="font-size:0.1em;"><br><br></span>';	// человеческое наименование двигателя из SignalK
 			str += strPropVal;
 			if(displayData[tpvName].label) str += `<span style="font-size:var(--ltl1-font-size);"><br>${displayData[tpvName].label}</span>`;
 		}
-		else {
+		else {	// указано размещать в верхних углах
 			if(displayData[tpvName].label) str += `<span style="font-size:var(--ltl1-font-size);">${displayData[tpvName].label}<br><br></span>`;
 			str += strPropVal;
-			str += '<span style="font-size:var(--ltl1-font-size);"><br><br></span>'+strPropLabel;	// человеческое наименование двигателя из SignalK
+			str += '<span style="font-size:0.2em;"><br></span>'+strPropLabel;	// человеческое наименование двигателя из SignalK
 		}
-		htmlBLock.style.display = 'inherit';
+		htmlBLock.style.display = '';
 		htmlBLock.innerHTML = str;
 		break;
 	case 'nextPoint':	// тут возможно рисование углов, но рисуется и метка на круге
@@ -391,7 +391,7 @@ byChangedTPV: for(let tpvName of changedTPV){
 			if(displayData[tpvName].label) str += `<span style="font-size:var(--ltl1-font-size);">${displayData[tpvName].label}<br><br></span>`;
 			str += tpv[tpvName].value.toFixed(displayData[tpvName].precision);			
 		}
-		htmlBLock.style.display = 'inherit';
+		htmlBLock.style.display = '';
 		htmlBLock.innerHTML = str;
 		break;
 	};
@@ -400,7 +400,7 @@ byChangedTPV: for(let tpvName of changedTPV){
 function displayNextPoint(){
 const azimuth = bearing(tpv.position.value, tpv.nextPoint.value.position);
 nextPointDirection.style.transform = `rotate(${azimuth}deg)`;
-nextPointDirection.style.display = 'inherit';
+nextPointDirection.style.display = '';
 
 if(!displayData.nextPoint.DOMid) return;	// данный параметр запрошен, но не должен показываться
 if((displayData.nextPoint.DOMid == 'leftBottomBlock') && mobPosition) return;	// не будем рисовать в нижнем левом углу, если режим MOB
@@ -410,11 +410,11 @@ let dist = equirectangularDistance(tpv.position.value, tpv.nextPoint.value.posit
 let mesTXT;
 if(dist>1000){ 
 	dist = (dist/1000).toFixed(displayData.nextPoint.precision+1);
-	mesTXT = dashboarNextPointMesKMTXT;
+	mesTXT = i18n.dashboarNextPointMesKMTXT;
 }
 else {
 	dist = dist.toFixed(displayData.nextPoint.precision);
-	mesTXT = dashboarNextPointMesMTXT;
+	mesTXT = i18n.dashboarNextPointMesMTXT;
 }
 
 const htmlBLock = document.getElementById(displayData.nextPoint.DOMid);
@@ -427,7 +427,7 @@ else {
 	if(displayData.nextPoint.label) str += `<span style="font-size:var(--ltl1-font-size);">${displayData.nextPoint.label}, ${mesTXT}<br><br></span>`;
 	str += dist;			
 }
-htmlBLock.style.display = 'inherit';
+htmlBLock.style.display = '';
 htmlBLock.innerHTML = str;
 }; // 	end function displayNextPoint
 }; // end function display()
@@ -441,8 +441,14 @@ center_marc.style.display = '';
 topMessage.style.display = '';
 bottomMessage.style.display = '';
 center_icon.style.display = '';
-mobButton.style.display = '';
-
+if(displayData.kioskMode){	// клинтское устройство без органов управления
+	modeMenuIcon.style.display = 'none';
+	mobButton.style.display = 'none';
+}
+else {
+	modeMenuIcon.style.display = '';
+	mobButton.style.display = '';
+};
 compassMessage.style.display = 'none';
 }; // end function displayON
 
@@ -461,8 +467,8 @@ rightBottomBlock.style.display = 'none';
 leftBottomBlock.style.display = 'none';
 mobButton.style.display = 'none';
 
-compassMessage.innerHTML = `<span>${dashboardGNSSoldTXT}</span>`;
-compassMessage.style.display = '';
+compassMessage.innerHTML = `<span><br><br>${i18n.dashboardGNSSoldTXT}</span>`;
+compassMessage.style.display = 'contents';	// Не знаю, почему это так, но если указать пусто - текст вообще не показывается.
 }; // end function displayOFF
 
 
@@ -601,33 +607,42 @@ return posX;
 }; //end function downHline
 } // end function realWindSymbolUpdate
 
+function MOBmessageInit(){
+/* Окно сообщения MOB */
+MOBmessage.style.display = 'none';
+MOBmessage.addEventListener('click',function (event){	// для срабатывания клика везде, кроме самого окна, для закрытия
+	event.stopPropagation();	// чтобы оно не дошло до body, на который раньше успело навеситься modeMenuClose.
+});
+mobButton.addEventListener('click',function (event){
+	event.stopPropagation();	// чтобы оно не дошло до body, на который раньше успело навеситься closebotMOBmessage. Что странно...
+	MOBalarm();
+});
+MOBmessageAddPointButton.querySelector('span').innerHTML = i18n.dashboardMOBbuttonAddTXT;
+MOBmessageCancelButton.querySelector('span').innerHTML = i18n.dashboardMOBbuttonCancelTXT;
+
+}; // end function MOBmessageInit
 
 function MOBalarm(){
 if(tpv.mob && tpv.mob.value && (tpv.mob.value.state != "normal")){	// режим MOB есть
-	bottomOnButtonMessage.innerHTML = `
-	<br>
-	`;
-	if(mobPosition) bottomOnButtonMessage.innerHTML += `<div class="messageButton" style="width: 60%;margin:1em 0;" onclick="sendMOBtoServer(true);"><img src="img/mob.svg"> ${dashboardMOBbuttonAddTXT}</div>`;
-	bottomOnButtonMessage.innerHTML += `
-	<div class="messageButton" style="width: 20%;" onclick="sendMOBtoServer(false);"> ✘ ${dashboardMOBbuttonCancelTXT}</div>
-	`;
-	bottomOnButtonMessage.style.display = '';
-	document.body.addEventListener('click',(event)=>{closebottomOnButtonMessage();},{'once':true});
+	if(mobPosition) MOBmessageAddPointButton.style.display = '';
+	else MOBmessageAddPointButton.style.display = 'none';
+	MOBmessage.style.display = '';
+	document.body.addEventListener('click',(event)=>{closeMOBmessage();},{'once':true});
 }
 else {
-	bottomOnButtonMessage.style.display = 'none';
+	MOBmessage.style.display = 'none';
 	sendMOBtoServer(true);	//console.log('Поднять режим MOB');
 };
 }; // end function MOBalarm
 
-function closebottomOnButtonMessage(){
-bottomOnButtonMessage.style.display = 'none';
-} // end function closebottomOnButtonMessage
+function closeMOBmessage(){
+MOBmessage.style.display = 'none';
+} // end function closeMOBmessage
 
 
 function sendMOBtoServer(status=true){
 /* */
-console.log("[sendMOBtoServer] status=",status,'tpv.position:',tpv.position,'mobMarkerJSON:',mobMarkerJSON);
+//console.log("[sendMOBtoServer] status=",status,'tpv.position:',tpv.position,'mobMarkerJSON:',mobMarkerJSON);
 if(status) {	// нужно открыть режим "человек за бортом"
 	// Есть координаты
 	let coordinates = [];	// если нет координат, то Leaflet такую точку просто не показывает.
@@ -804,6 +819,579 @@ return delta;
 
 
 
+// Меню параметров
+function modeMenuInit(){
+/* Окно меню параметров */
+modeMenu.style.display = 'none';
+modeMenu.addEventListener('click',function (event){	// для срабатывания клика везде, кроме самого окна, для закрытия
+	event.stopPropagation();	// чтобы оно не дошло до body, на который раньше успело навеситься modeMenuClose.
+});
+modeMenuIcon.addEventListener('click',function (event){
+	event.stopPropagation();	// чтобы оно не дошло до body, на который раньше успело навеситься modeMenuClose.
+	modeMenuOpen();
+});
+let selected=false;
+// Путевой угол
+courseTypeSelector.labels[0].innerHTML = `${i18n.courseTypeSelectorLabelTXT}`;
+for(let option in i18n.courseTypeSelectorOptionsTXT){
+	if(displayData.track && displayData.track.menuItem == option) selected=true;
+	else selected=false;
+	courseTypeSelector.add(new Option(i18n.courseTypeSelectorOptionsTXT[option], option,selected,selected));
+};
+courseRefreshIntervalInput.labels[0].innerHTML = `${i18n.modeRefreshIntervalInputTXT}`;
+courseRefreshIntervalInput.value = displayData.maxRefreshInterval || 0;
+// Ветер
+windTypeSelector.labels[0].innerHTML = `${i18n.windTypeSelectorLabelTXT}`;
+for(let option in i18n.windTypeSelectorOptionsTXT){
+	if(displayData.wangle && displayData.wangle.menuItem == option) selected=true;
+	else selected=false;
+	windTypeSelector.add(new Option(i18n.windTypeSelectorOptionsTXT[option], option,selected,selected));
+};
+windRefreshIntervalInput.labels[0].innerHTML = `${i18n.modeRefreshIntervalInputTXT}`;
+windRefreshIntervalInput.value = displayData.maxRefreshInterval || 0;
+// Углы
+let DOMid = modeMenu.querySelector('input[name="DOMidSelection"]:checked').value;	// выбранный угол
+let tpvName;
+for(tpvName in displayData){
+	if(displayData[tpvName].DOMid != DOMid) {
+		tpvName = null;
+		continue;
+	}
+	break;
+};
+//console.log('[modeMenuInit] DOMid=',DOMid,'tpvName=',tpvName);
+modeSelector.labels[0].innerHTML = `${i18n.modeSelectorLabelTXT}`;
+for(let option in i18n.modeSelectorOptionsTXT){
+	//console.log('[modeMenuInit] option=',option,i18n.modeSelectorOptionsTXT[option]);
+	if(option.startsWith('Engine')) {
+		if(!displayData.propulsionPaths) continue;
+		if(option.includes('1') && displayData.propLabel0.value) i18n.modeSelectorOptionsTXT[option] = i18n.modeSelectorOptionsTXT[option].replace('1',displayData.propLabel0.value);
+		else if(option.includes('2') && displayData.propLabel1.value) i18n.modeSelectorOptionsTXT[option] = i18n.modeSelectorOptionsTXT[option].replace('2',displayData.propLabel1.value);
+	};
+	if(tpvName && displayData[tpvName].menuItem == option) selected=true;
+	else selected=false;
+	modeSelector.add(new Option(i18n.modeSelectorOptionsTXT[option], option,selected,selected));
+};
+modeRefreshIntervalInput.value = displayData.maxRefreshInterval || 0;
+modeRefreshIntervalInput.labels[0].innerHTML = `${i18n.modeRefreshIntervalInputTXT}`;
+resetToDefaultButton.value = i18n.resetToDefaultButtonTXT;
+
+}; // end function modeMenuInit
+
+function selectOption(DOMid){
+let tpvName;
+for(tpvName in displayData){
+	if(displayData[tpvName].DOMid != DOMid) {
+		tpvName = null;
+		continue;
+	}
+	break;
+};
+//console.log('[selectOption] DOMid=',DOMid,'tpvName=',tpvName);
+if(tpvName){
+	for(const option of modeSelector.options){
+		if(option.value != displayData[tpvName].menuItem) continue;
+		option.selected = true;
+		break;
+	};
+}
+else modeSelector.selectedIndex = 0;
+}; // end function selectOption
+
+function DOMidSelectionUpdOption(event){
+selectOption(event.target.value);
+}; // end function DOMidSelectionUpdOption
+
+function modeMenuOpen(){
+if(modeMenu.style.display == 'none'){
+	//console.log('[modeMenuOpen] modeMenu:',modeMenu);
+	modeMenu.style.display = '';
+	document.body.addEventListener('click',(event)=>{
+		//console.log(event.target,event.currentTarget);
+		//console.log('Проходит через modeMenu:',isBooblingFrom(event,'modeMenu'));
+		// В этом кретинском языке нет нормального способа узнать, через какие объекты всплывает событие,
+		// и нет способа запретить всплытие событий через объект.
+		// Поэтому костыль.
+		//if(!isBooblingFrom(event,'modeMenu')) modeMenuClose();
+		// Но мы обойдёмся без костыля, рекомендованными методами: запретом
+		// всплытия по клику на соответствующем объекте.
+		modeMenuClose();
+	},{'once':true});	// закрывать меню по клику в любом месте
+}
+else modeMenu.style.display = 'none';
+}; // end function modeMenuOpen
+
+function modeMenuClose(){
+modeMenu.style.display = 'none';
+}; // end function modeMenuClose
+
+function modeMenuReset(){
+storageHandler.del('displayData');
+modeMenu.submit();	// при этом событие submit не происходит, и modeMenuSubmit() не вызывается.
+}; // end function modeMenuReset
+
+function modeMenuSubmit(event){
+/**/
+//console.log('[modeMenuSubmit]',event);
+//console.log('[modeMenuSubmit] courseTypeSelector',courseTypeSelector.value,);
+//console.log('[modeMenuSubmit] windTypeSelector',windTypeSelector.value,);
+//console.log('[modeMenuSubmit] DOMidSelection',modeMenu.querySelector('input[name="DOMidSelection"]:checked').value);
+//console.log('[modeMenuSubmit] modeSelector',modeSelector.value,);
+//alert('[modeMenuSubmit]');
+
+let maxRefreshInterval;
+// Удалим из конфигурационного файла все параметры, указанные в форме ввода
+const DOMid = modeMenu.querySelector('input[name="DOMidSelection"]:checked').value;
+for(let tpvName in displayData){
+	if(displayData[tpvName].maxRefreshInterval && (displayData[tpvName].maxRefreshInterval>maxRefreshInterval)) maxRefreshInterval = displayData[tpvName].maxRefreshInterval;	// найдём самый большой интервал обновления
+
+	if(
+		(displayData[tpvName].DOMid == DOMid)
+		|| (displayData[tpvName].menuItem == courseTypeSelector.value)
+		|| (displayData[tpvName].menuItem == windTypeSelector.value)
+	) delete displayData[tpvName];
+};
+// Вот это всё должно быть полностью аналогично тому, что написано в index.js
+// Однако, в этом гавёном языке нельзя простым путём включить один js-файл и в node, и в html,
+// поэтому здесь просто копирование.
+
+// Путевой угол
+// Может быть выбрано только одна величина для track, поэтому есть только track и нет magtrack
+let headingDirection = 'false';
+switch(courseTypeSelector.value){
+case "none":
+	for(let tpvName in displayData){
+		switch(displayData[tpvName].menuItem){
+		case "track":
+		case "magtrack":
+		case "heading":
+		case "mheading":
+		case "mheadingC":
+			delete displayData[tpvName];
+		};
+	};	
+	break;
+case "track":
+	displayData["track"] = {	// course over ground, путевой угол, TPV track в gpsd
+		"signalkPath": "navigation.courseOverGroundTrue",
+		"label": i18n.dashboardCourseTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	displayData["heading"] = {	// heading, курс, в gpsd ATT heading
+		"signalkPath": "navigation.headingTrue",
+		"label": i18n.dashboardHeadingTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	break;
+case "magtrack":
+	displayData["track"] = {	// course over ground, путевой угол, TPV track в gpsd
+		"signalkPath": "navigation.courseOverGroundMagnetic",
+		"label": i18n.dashboardMagCourseTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	displayData["heading"] = {	// heading, курс, в gpsd ATT heading
+		"signalkPath": "navigation.dashboardMagCourseTXT",
+		"label": i18n.dashboardMagHeadingTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	break;
+case "heading":
+	headingDirection = 'true';
+	displayData["track"] = {	// 
+		"signalkPath": "navigation.courseOverGroundTrue",
+		"label": i18n.dashboardCourseTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	displayData["heading"] = {	// heading, курс
+		"signalkPath": "navigation.headingTrue",
+		"label": i18n.dashboardHeadingTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	break;
+case "mheading":
+	headingDirection = 'true';
+	displayData["track"] = {	// course over ground, путевой угол, track в gpsd
+		"signalkPath": "navigation.courseOverGroundMagnetic",
+		"label": i18n.dashboardMagCourseTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	displayData["heading"] = {	// heading, курс
+		"signalkPath": "navigation.headingMagnetic",
+		"label": i18n.dashboardMagHeadingTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	break;
+case "mheadingC":
+	headingDirection = 'true';
+	displayData["track"] = {	//
+		"signalkPath": "navigation.courseOverGroundMagnetic",
+		"label": i18n.dashboardMagCourseTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	displayData["heading"] = {	// heading, курс
+		"signalkPath": "navigation.headingCompass",
+		"label": i18n.dashboardCompassHeadingTXT,	// наименование переменной из internationalisation.js
+		"precision": 0,	// точность показываемой цифры, символов после запятой
+		"multiplicator": 180/Math.PI, 	// на что нужно умножить значение для показа
+		"maxRefreshInterval": courseRefreshIntervalInput.value * 1000,
+		"fresh": (5+courseRefreshIntervalInput.value) * 1000,		// время свежести, миллисек.
+		"headingDirection": headingDirection,
+		"menuItem" : courseTypeSelector.value
+	};
+	break;
+};
+// Ветер
+let trueWind = 'false';
+switch(windTypeSelector.value){
+case "none":
+	for(let tpvName in displayData){
+		switch(displayData[tpvName].menuItem){
+		case "wangler":
+		case "wangletW":
+		case "wanglet":
+		case "wdirT":
+		case "wdirM":
+			delete displayData[tpvName];
+		};
+	};	
+	break;
+case "wangler":
+	displayData["wangle"] = {
+		"signalkPath": "environment.wind.angleApparent",
+		"label": "",
+		"precision" : 0,
+		"multiplicator" : 180/Math.PI,
+		"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+		"fresh": (2+windRefreshIntervalInput.value) * 1000,
+		"trueWind": trueWind,
+		"menuItem" : windTypeSelector.value
+	};
+	displayData["wspeed"] = {
+		"signalkPath": "environment.wind.speedApparent",
+		"label": i18n.dashboardWindSpeedTXT+', '+i18n.dashboardWindSpeedMesTXT+':',
+		"precision" : 0,
+		"multiplicator" : 1,
+		"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+		"fresh": (2+windRefreshIntervalInput.value) * 1000,
+		"menuItem" : windTypeSelector.value
+	};
+	break;
+case "wdirT":
+	trueWind = 'true';
+	displayData["wangle"] = {
+		"signalkPath": "environment.wind.directionTrue",	// The wind direction relative to true north
+		"label": "",
+		"precision" : 0,
+		"multiplicator" : 180/Math.PI,
+		"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+		"fresh": (2+windRefreshIntervalInput.value) * 1000,
+		"trueWind": trueWind,
+		"menuItem" : windTypeSelector.value
+	};
+	displayData["wspeed"] = {
+		"signalkPath": "environment.wind.speedTrue",	// Wind speed over water (as calculated from speedApparent and vessel's speed through water)
+		"label": i18n.dashboardTrueWindSpeedTXT+', '+i18n.dashboardWindSpeedMesTXT+':',
+		"precision" : 1,
+		"multiplicator" : 1,
+		"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+		"fresh": (2+windRefreshIntervalInput.value) * 1000,
+		"menuItem" : windTypeSelector.value
+	};
+	break;
+case "wdirM":
+	// только если курс или путевой угол магнитный
+	if(displayData.track && ((displayData.track.menuItem == 'magtrack') || (displayData.track.menuItem == 'mheading') || (displayData.track.menuItem == 'mheadingC'))){
+		trueWind = 'true';
+		displayData["wangle"] = {
+			"signalkPath": "environment.wind.directionMagnetic",
+			"label": "",
+			"precision" : 0,
+			"multiplicator" : 180/Math.PI,
+			"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+			"fresh": (2+windRefreshIntervalInput.value) * 1000,
+			"trueWind": trueWind,
+			"menuItem" : windTypeSelector.value
+		};
+		displayData["wspeed"] = {
+			"signalkPath": "environment.wind.speedTrue",	// Wind speed over water (as calculated from speedApparent and vessel's speed through water)
+			"label": i18n.dashboardTrueWindSpeedTXT+', '+i18n.dashboardWindSpeedMesTXT+':',
+			"precision" : 1,
+			"multiplicator" : 1,
+			"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+			"fresh": (2+windRefreshIntervalInput.value) * 1000,
+			"menuItem" : windTypeSelector.value
+		};
+	};
+	break;
+case "wanglet":
+	trueWind = 'true';
+	displayData["wangle"] = {
+		"signalkPath": "environment.wind.angleTrueGround",
+		"label": "",
+		"precision" : 0,
+		"multiplicator" : 180/Math.PI,
+		"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+		"fresh": (2+windRefreshIntervalInput.value) * 1000,
+		"trueWind": trueWind,
+		"menuItem" : windTypeSelector.value
+	};
+	displayData["wspeed"] = {
+		"signalkPath": "environment.wind.speedOverGround",
+		"label": i18n.dashboardTrueWindSpeedTXT+', '+i18n.dashboardWindSpeedMesTXT+':',
+		"precision" : 0,
+		"multiplicator" : 1,
+		"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+		"fresh": (2+windRefreshIntervalInput.value) * 1000,
+		"menuItem" : windTypeSelector.value
+	};
+	break;
+case "wangletW":
+	trueWind = 'true';
+	displayData["wangle"] = {
+		"signalkPath": "environment.wind.angleTrueWater",
+		"label": "",
+		"precision" : 0,
+		"multiplicator" : 180/Math.PI,
+		"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+		"fresh": (2+windRefreshIntervalInput.value) * 1000,
+		"trueWind": trueWind,
+		"menuItem" : windTypeSelector.value
+	};
+	displayData["wspeed"] = {
+		"signalkPath": "environment.wind.speedTrue",	// Wind speed over water (as calculated from speedApparent and vessel's speed through water)
+		"label": i18n.dashboardTrueWindSpeedTXT+', '+i18n.dashboardWindSpeedMesTXT+':',
+		"precision" : 1,
+		"multiplicator" : 1,
+		"maxRefreshInterval": windRefreshIntervalInput.value * 1000,
+		"fresh": (2+windRefreshIntervalInput.value) * 1000,
+		"menuItem" : windTypeSelector.value
+	};
+	break;
+};
+// Углы
+switch(modeSelector.value){
+case "none":
+	break;
+case "speed":
+	displayData["speed"] = {
+		"signalkPath": "navigation.speedOverGround",
+		"label": i18n.dashboardSpeedTXT+', '+i18n.dashboardSpeedMesTXT,	// скорость
+		"precision" : 1,
+		"multiplicator" : 60*60/1000,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (3+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "STW":
+	displayData["speed"] = {
+		"signalkPath": "navigation.speedThroughWater",
+		"label": i18n.dashboardVaterSpeedTXT+', '+i18n.dashboardSpeedMesTXT,	// скорость
+		"precision" : 1,
+		"multiplicator" : 60*60/1000,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (3+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "DBS":
+	displayData["depth"] = {
+		"signalkPath": "environment.depth.belowSurface",
+		"label": i18n.dashboardDepthTXT+', '+i18n.dashboardDepthMesTXT, 	// глубина
+		"precision" : 1,
+		"multiplicator" : 1,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (2+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "DBK":
+	displayData["depth"] = {
+		"signalkPath": "environment.depth.belowKeel",
+		"label": i18n.dashboardKeelDepthTXT+', '+i18n.dashboardDepthMesTXT, 	// глубина
+		"precision" : 1,
+		"multiplicator" : 1,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (2+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "DBT":
+	displayData["depth"] = {
+		"signalkPath": "environment.depth.belowTransducer",
+		"label": i18n.dashboardTransDepthTXT+', '+i18n.dashboardDepthMesTXT, 	// глубина
+		"precision" : 1,
+		"multiplicator" : 1,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (2+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "Engine1r":
+	if(!(displayData.propulsionPaths && displayData.propulsionPaths[0])) break;
+	displayData["propRevolutions0"] = {
+		"signalkPath": `${displayData.propulsionPaths[0]}.revolutions`,
+		"label": i18n.dashboardPropRevolutionTXT+', '+i18n.dashboardPropRevolutionMesTXT,
+		"precision" : 0,
+		"multiplicator" : 60,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (2+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "Engine1t":
+	if(!(displayData.propulsionPaths && displayData.propulsionPaths[0])) break;
+	displayData["propTemperature0"] = {
+		"signalkPath": `${displayData.propulsionPaths[0]}.temperature`,
+		"label": i18n.dashboardPropTemperatureTXT+', '+i18n.dashboardTemperatureMesTXT,
+		"precision" : 0,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (10+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "Engine2r":
+	if(!(displayData.propulsionPaths && displayData.propulsionPaths[1])) break;
+	displayData["propRevolutions1"] = {
+		"signalkPath": `${displayData.propulsionPaths[1]}.revolutions`,
+		"label": i18n.dashboardPropRevolutionTXT+', '+i18n.dashboardPropRevolutionMesTXT,
+		"precision" : 0,
+		"multiplicator" : 60,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (2+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "Engine2t":
+	if(!(displayData.propulsionPaths && displayData.propulsionPaths[1])) break;
+	displayData["propTemperature1"] = {
+		"signalkPath": `${displayData.propulsionPaths[1]}.temperature`,
+		"label": i18n.dashboardPropTemperatureTXT+', '+i18n.dashboardTemperatureMesTXT,
+		"precision" : 0,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (10+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "temp":
+	displayData["airTemperature"] = {
+		"signalkPath": "environment.outside.temperature",
+		"label": i18n.dashboarAirTemperatureTXT+', '+i18n.dashboardTemperatureMesTXT,
+		"precision" : 0,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (30+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "airP":
+	displayData["airPressure"] = {
+		"signalkPath": "environment.outside.pressure",
+		"label": i18n.dashboarAirPressureTXT+', '+i18n.dashboardAirPressureMesTXT,
+		"precision" : 0,
+		"multiplicator" : 0.01,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (30+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "airH":
+	displayData["airHumidity"] = {
+		"signalkPath": "environment.outside.relativeHumidity",
+		"label": i18n.dashboarAirHumidityTXT+', '+i18n.dashboardAirHumidityMesTXT,
+		"precision" : 0,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (30+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "waterT":
+	displayData["waterTemperature"] = {
+		"signalkPath": "environment.water.temperature",
+		"label": i18n.dashboarWaterTemperatureTXT+', '+i18n.dashboardTemperatureMesTXT,
+		"precision" : 0,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": (30+modeRefreshIntervalInput.value) * 1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+case "navPoint":
+	displayData["nextPoint"] = {
+		"signalkPath": "navigation.course.nextPoint",
+		"label": i18n.dashboarNextPointTXT,
+		"precision" : 0,
+		"maxRefreshInterval": modeRefreshIntervalInput.value * 1000,
+		"fresh": 60*60*24*1000,
+		"DOMid": DOMid,
+		"menuItem" : modeSelector.value
+	};
+	break;
+};
+//console.log('[modeMenuSubmit] displayData:',displayData);
+storageHandler.save('displayData');
+//console.log('[modeMenuSubmit] displayData saved:',storageHandler.restore('displayData'));
+//modeMenuClose();	// оно не надо, поскольку окно перегружается
+//alert('[modeMenuSubmit] Перезагрузка!');
+}; // end function modeMenuSubmit
+
+// Конец Меню параметров
 
 
 
@@ -858,12 +1446,15 @@ function chkTPV(tpvName,checksTPV={}) {
 */
 let changed=false;
 if(!displayData[tpvName].fresh) return changed;	// если нет срока годности -- данные всегда свежие
-if(displayData[tpvName].value === null || displayData[tpvName].value === undefined) return changed;	// отсутствующие данные всегда свежие
 
 const dt = Date.now()-tpv[tpvName].timestamp;
+//console.log('[chkTPV] tpvName=',tpvName,'displayData[tpvName].fresh=',displayData[tpvName].fresh,'Время данных',tpv[tpvName].timestamp,'устарело на',(Date.now()-tpv[tpvName].timestamp)/1000,'сек.');
 //if(tpvName=='collisions') console.log('[chkTPV] tpvName=',tpvName,'displayData[tpvName].fresh=',displayData[tpvName].fresh,'Время данных',tpv[tpvName].timestamp,'устарело на',(Date.now()-tpv[tpvName].timestamp)/1000,'сек.');
-if(tpv[tpvName] && ((dt > displayData[tpvName].fresh) || dt < 0)){	// dt меньше 0 - это фигня какая-то... Почему?
-	console.log('Property',tpvName,'is',(Date.now()-tpv[tpvName].timestamp)/1000,'sec. old, but should be no more than',displayData[tpvName].fresh/1000,'sec.');
+//if(tpv[tpvName] && ((dt > displayData[tpvName].fresh) || dt < 0)){	// dt меньше 0 - это фигня какая-то... Почему?
+// dt меньше 0 - это действительно фигня, но следует ли заморачиваться?
+// Причина, скорее всего, в разном времени на компьютерах
+if(tpv[tpvName] && ((dt > displayData[tpvName].fresh))){	
+	console.log('Property',tpvName,'is',dt/1000,'sec. old, but should be no more than',displayData[tpvName].fresh/1000,'sec.');
 	delete tpv[tpvName]; 	// 
 	//console.log('[chkTPV tpv после очистки]',JSON.stringify(tpv,null,"\t"));
 	display([tpvName]);
@@ -878,19 +1469,23 @@ return changed;
 }; // end function chkTPV
 
 function chkAllTPV(){
+//console.log('[chkAllTPV] запущено');
 let minFresh=999999999999;
 let changed=false;
 for(let tpvName in tpv){
 	//console.log('[chkAllTPV] tpvName=',tpvName);
 	changed = chkTPV(tpvName);
-	if(!changed && displayData[tpvName].fresh && (displayData[tpvName].fresh < minFresh)) minFresh = displayData[tpvName].fresh;
+	if(!changed && displayData[tpvName].fresh && (displayData[tpvName].fresh < minFresh)) {
+		minFresh = displayData[tpvName].fresh;
+		//console.log('[chkAllTPV] tpvName=',tpvName,'minFresh=',minFresh,displayData[tpvName]);
+	};
 };
 //console.log('[chkAllTPV] minFresh=',minFresh,'minFreshInterval:',minFreshInterval);
 if(minFresh > 10000) minFresh = 10000;	// может не быть ни одного значения свежести, или быть очень большое
 if(minFresh != minFreshInterval.value){
 	minFreshInterval.value = minFresh;
 	clearInterval(minFreshInterval.object);
-	//console.log('[chkAllTPV] Интервал проверки свежести имеющихся данных изменён на',minFreshInterval.value/1000,'сек.');
+	//console.log('[chkAllTPV] Интервал проверки свежести имеющихся данных установлен в',minFreshInterval.value/1000,'сек.');
 	minFreshInterval.object = window.setInterval(chkAllTPV, minFreshInterval.value);
 };
 }; // end function chkAllTPV
@@ -919,7 +1514,7 @@ bottomMessage.innerHTML = '';
 for(let key in bottomMessages) {
 	bottomMessage.innerHTML += ' '+bottomMessages[key];
 };
-bottomMessage.style.display = 'inherit';
+bottomMessage.style.display = '';
 };// end function updBottomMessages
 
 
@@ -982,13 +1577,124 @@ function generateUUID() {
     });
 }; // end function generateUUID
 
-function getCookie(name) {
-// возвращает cookie с именем name, если есть, если нет, то undefined
-name=name.trim();
-var matches = document.cookie.match(new RegExp(
-	"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-	)
-);
-return matches ? decodeURIComponent(matches[1]) : null;
-}; // end function getCookie
+
+function isBooblingFrom(event,id){
+/* Проверяет, всплывает ли событие event через объект с id 
+Нужно, чтобы объект, на котором зарегистрировано событие, тоже имел id
+*/
+if(event.target.id == id) return true;	// событие вызвано собственно на искомом объекте
+let currentTargetID = event.currentTarget.id;
+if(!currentTargetID) return null;
+let current = event.target.parentElement;
+do{
+	if(!current) return false;
+	if(current.id == currentTargetID) return false;
+	if(current.id == id) return true;
+	current = current.parentElement;
+} while(true);
+}; // end function isBooblingFrom
+
+
+const storageHandler = {
+	_storageName : 'DashboardModernSKOptions',
+	_store: {'empty':true},	// типа, флаг, что ещё не считывали из хранилища. Так проще и быстрей в этом кривом языке.
+	storage: false,	// теоретически, можно указать, куда именно записывать? Но только мимо проверки доступности.
+	//storage: 'cookie',
+	//storage: 'storage',
+	save: function(key,value=null){
+		/* сохраняет key->value, но можно передать список пар одним параметром 
+		или просто строку с именем переменной */
+		let values = {};
+		if(arguments.length == 2){	// два аргумента - это key->value
+			values[key] = value;
+		}
+		else if(typeof key == 'object') {	// один, но список key->value
+			values = key;
+		}
+		else {	// один, тогда это строка - имя переменной
+			//values[key] = window[key];	// это обломается, если key - не глобальная переменная, объявленная через var
+			// поэтому нижесказанное - единственный способ получить значение объекта по его имени.
+			// Он сработает и с локальным объектом, и с объектами, объявленными через let и const
+			values[key] = eval(key);
+			//console.log('[storageHandler] save key=',key,window[key]);
+		};
+		//console.log('[storageHandler] save',values,'to storage:',this.storage,'store:',this._store);
+		for(let key in values){
+			this._store[key] = values[key];
+		};
+		this._store.empty = false;
+		this._saveStore();
+	},
+	restore: function(key){
+		//alert('[storageHandler] restore '+key);
+		if(this._store.empty){
+			this._restoreStore();
+			this._store.empty = false;
+		};
+		return this._store[key.trim()];
+	},
+	restoreAll: function(){
+		if(this._store.empty){
+			this._restoreStore();
+			this._store.empty = false;
+		};
+		delete this._store.empty;
+		for(let varName in this._store){
+			window[varName] = this._store[varName];	// window[varName] - создаётся глобальная переменная с именем, являющимся значением varName
+		};
+		this._store.empty = false;
+	},
+	del: function(key){
+		if(this._store.empty){
+			this._restoreStore();
+			this._store.empty = false;
+		};
+		delete this._store[key.trim()];
+		this._saveStore();
+	},
+	_findStorage: function(){
+		try {
+			window.localStorage.setItem("__storage_test__", "__storage_test__");
+			window.localStorage.removeItem("__storage_test__");
+			this.storage='storage';
+		}
+		catch (err) {
+			this.storage='cookie';	// куки-то всегда можно, да?
+		};
+	},
+	_saveStore: function(){
+		if(!this.storage) this._findStorage();
+		switch(this.storage){
+		case 'storage':
+			//console.log('_saveStore:',JSON.stringify(this._store));
+			window.localStorage.setItem(this._storageName, JSON.stringify(this._store));
+			break;
+		case 'cookie':
+			let expires = new Date(Date.now() + (60*24*60*60*1000));	// протухнет через два месяца
+			expires = expires.toUTCString();
+			document.cookie = this._storageName+"="+JSON.stringify(this._store)+"; expires="+expires+"; path=/; SameSite=Lax;";
+			break;
+		default:
+			console.log('storageHandler: the parameters are not saved, there is nowhere');
+		};
+	},
+	_restoreStore: function(){
+		if(!this.storage) this._findStorage();
+		switch(this.storage){
+		case 'storage':
+			this._store = JSON.parse(window.localStorage.getItem(this._storageName));
+			//console.log('_restoreStore:',JSON.stringify(this._store));
+			if(!this._store) this._store = {'empty':true};
+			break;
+		case 'cookie':
+			this._store = JSON.parse(document.cookie.match(new RegExp(
+				"(?:^|; )" + this._storageName.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+			))[1]);
+			if(!this._store) this._store = {'empty':true};
+			break;
+		default:
+			console.log('storageHandler: no saved parameters, there is nowhere');
+		};
+	}
+}; // end storageHandler
 

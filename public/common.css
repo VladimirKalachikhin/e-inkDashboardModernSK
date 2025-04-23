@@ -1,26 +1,124 @@
-body {
+html {
 	--out-width: 88vmin; /* * 1% of the viewport's smaller dimension */
 	--font-size: calc(var(--out-width)/8);	/* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries */
+	/*--font-size: calc(11vmin);*/	/* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries */
 	--small-font-size: calc(var(--font-size)*0.7);	/* если сказать em, то величиной будет em, а не вычисленное в этот момент значение. Поэтому -- вычисляется */
 	--ltl-font-size: calc(var(--font-size)*0.4);
 	--ltl1-font-size: calc(var(--font-size)*0.3);
+	--ltl2-font-size: calc(var(--font-size)*0.22);
 	--pico-font-size: calc(var(--font-size)*0.2);
+}
+body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;	
 
+	/*border:solid blue;*/
+}
+#wrapper {
 	display: grid;
-	grid-template-columns: 5% 30% 30% 30% 5%;	/* это проценты имеющейся ширины body */
+	/* Если содержимое не влезает, то оно шире viewport, и обрезается справа */
+	/*grid-template-columns: 5% 30% 30% 30% 5%;*/
+	/*grid-template-columns: 5vw 30vw 30vw 30vw 5vw;*/	/* это проценты имеющейся ширины body */
+	grid-template-columns: 5% 1fr 1fr 1fr 5%; 
 
-	/* почему-то, если указать % в крайних строках, то пространство исчезает, 
-	если там нет объекта. А если указать число -- остаётся. 
-	Кроме того, 1fr работает, как написано в спецификации, только в Firefox, а в Chrome и Opera
-	высота строки не меняется.
-	*/
-	grid-template-rows: calc(100vh*0.045) 30% 30% 30% calc(100vh*0.045);	
-	/*grid-template-rows: calc(100vh*0.045) 1fr 1fr 1fr calc(100vh*0.045);*/
+	/*grid-template-rows: 5vh 30% 30% 30% 5vh;*/
+	/*grid-template-rows: 5vh 30vh 30vh 30vh 5vh;*/
+	grid-template-rows: 5vh 1fr 1fr 1fr 5vh; 
 
 	/* А это проценты от вычисленого размера compass, хотя они и должны совпадать с высотой ландшафтного экрана. */
 	/*grid-template-rows: calc(var(--out-width)*0.05) calc(var(--out-width)*0.3) calc(var(--out-width)*0.3) calc(var(--out-width)*0.3) calc(var(--out-width)*0.05);*/
 
+	/* Нам нужно избавиться от полос прокрутки, которая появляется из-за расширения блока compass 
+	когда углы блоков подписей картушки вылезают за его границы.
+	При этом overflow: hidden; именно в этом блоке делает его ширину 100% viewport, а если
+	указать overflow: hidden; в body - то ширина body становится меньше viewport и переменной.
+	Фигня какая-то...
+	*/
+	overflow: hidden; 	
+	width: 100%;
+	/*если не указать 100%, то кривой Chrome странно увеличивает размер шрифта во всех блоках 
+	снаружи компаса. Может быть, следует указать для них position: relative; ? */
+	height: 100%;	
+	margin: 0;
+	padding-bottom: 0;
 	font-size: var(--font-size);
+	
+	/*border:solid green;*/
+}
+/*svg {
+	 border:solid red;
+}*/
+/* Стили меню режимов */
+#modeMenuIcon {
+	grid-column-start: 5;
+	grid-column-end: 6;
+	grid-row-start: 1;
+	grid-row-end: 2;
+	margin: auto 0.1em auto auto;
+	width: calc(var(--out-width)/25);
+
+	/*border:solid green;*/
+}
+#modeMenu {
+	grid-column-start: 1;
+	grid-column-end: 6;
+	grid-row-start: 2;
+	grid-row-end: 4;
+	display: flow; /* Вложенные объекты будут подчиняться обычным правилам размещения */
+	position: relative; /* Тогда этот блок будет содержащим для вложенных блоков, но никуда не будет сдвинут за отсутствием указания. Вообще-то, это костыль... */
+
+	border: solid black;
+	border-radius: calc(var(--out-width)*0.02);
+	/* Поскольку высота ячейки grid меняется с изменением размера шрифта в угловых блоках (почему?)
+	то высота этого блока фиксирована и чуть меньше нормальной высоты ячейки, а сам блок
+	выровнен к концу ячейки, чтобы не менял положения с изменением высоты ячейки. Пурга какая-то...
+	*/
+	margin: 0 0.5em;
+	width: 98%;
+	height: calc(var(--out-width)*0.6);
+	align-self: start;
+	/* Непрозрачный фон и выше всего на 10. 
+	Тогда закрывает и компас, который всегда сверху, потому что крутится */
+	background-color: white;
+	z-index: 10;
+	font-size: var(--ltl2-font-size);
+}
+#modeMenu input[type="submit"]  {
+	font-size:110%; 
+	width: 5em; 
+
+	position:absolute; 
+	bottom:0.5em; 
+	right:0.5em; 
+
+	background:white; 
+	text-align:center;
+}
+#resetToDefaultButton  {
+	font-size:110%; 
+	padding: 0 2em;
+
+	position:absolute; 
+	bottom:0.5em; 
+	left:0.5em; 
+
+	background:white; 
+	text-align:center;
+}
+.withBorder {
+	border: solid black;
+	border-radius: calc(var(--out-width)*0.02);
+	margin: 0.1em;
+}
+.modeMenuBlock {
+	overflow: auto; /* Это заставляет учитывать высоту вложенного блока float в высоте этого блока.  */
+	margin: 0.5em 0 0 0;
+}
+#modeMenu .radio {
+	width:calc(var(--ltl2-font-size)*1.5);
+	height:calc(var(--ltl2-font-size)*1.5);
 }
 /* Стили блоков данных */
 #topMessage {
@@ -28,6 +126,7 @@ body {
 	grid-column-end: 5;
 	grid-row-start: 1;
 	grid-row-end: 2;
+	display: grid; 
 	font-size: var(--pico-font-size);
 	text-align: center;
 	
@@ -38,23 +137,24 @@ body {
 	grid-column-end: 5;
 	grid-row-start: 5;
 	grid-row-end: 6;
+	display: grid; 
 	font-size: var(--pico-font-size);
 	text-align: center;
 	align-self: end;
 	/*display:inherit; border:solid green;*/
 }
-
 #leftTopBlock {
 	grid-column-start: 1;
 	grid-column-end: 3;
 	grid-row-start: 2;
-	grid-row-end: 3;
+	grid-row-end: 5;
+	display: grid; 
 	font-size: calc(var(--font-size)*1.4);
 	text-align: left;
 	line-height: 0.7;
 	height: fit-content;
 	/*align-self: start;	это умолчальное значение */
-	margin-top: 0.1em;
+	margin: 0.1em 0 0 0.1em;
 
 	/*border:solid green;*/
 }
@@ -71,13 +171,14 @@ body {
 	grid-column-end: 6;
 	grid-row-start: 2;
 	grid-row-end: 3;
+	display: grid; 
 	/*font-size: var(--font-size);*/
 	font-size: calc(var(--font-size)*1.4);
 	text-align: right;
 	line-height: 0.7;
 	height: fit-content;
 	/*align-self: start;	это умолчальное значение */
-	margin-top: 0.1em;
+	margin: 0.1em 0.1em 0 0;
 
 	/*border:solid green;*/
 }
@@ -96,11 +197,11 @@ body {
 	grid-row-end: 5;
 	font-size: calc(var(--font-size)*1.4);
 	text-align: left;
-	display: inherit; 
+	display: grid; 
 	line-height: 0.7;
 	height: fit-content;
 	align-self: end;
-	margin-bottom: 0.1em;
+	margin: 0 0 0.1em 0.1em;
 
 	/*border:solid green;*/
 }
@@ -116,13 +217,13 @@ body {
 	grid-column-end: 6;
 	grid-row-start: 4;
 	grid-row-end: 5;
-	font-size: calc(var(--font-size)*1.4);
+	display: grid; 
+	/*font-size: calc(var(--font-size)*1.4)  !important;*/
+	font-size: 1.4em;
 	text-align: right;
-	display: inherit; 
 	line-height: 0.7;
-	height: fit-content;
 	align-self: end;
-	margin-bottom: 0.1em;
+	margin: 0 0.1em 0.1em 0;
 
 	/*border:solid green;*/
 }
@@ -143,6 +244,7 @@ body {
 }
 .leftBottomFrameBlinker {
 	padding: 0 0 0.05em 0.05em;
+	margin: 0;
 	border-width: 0 0 0.1em 0.1em;
 	border-style: none none solid solid;
 	animation: frameblinker 3s step-start infinite;
@@ -151,40 +253,36 @@ body {
 	50% { border-color: white; }
 }
 
-#bottomOnButtonMessage {
+#MOBmessage {
 	grid-column-start: 1;
 	grid-column-end: 6;
 	grid-row-start: 4;
 	grid-row-end: 6;
 	text-align: center;
-	display: flow; /* Вложенные объекты будут подчиняться обычным правилам размещения */
+	position: relative; /* Вложенные объекты будут подчиняться обычным правилам размещения */
 
-	border: solid black;
-	border-radius: calc(var(--out-width)*0.02);
 	/* Поскольку высота ячейки grid меняется с изменением размера шрифта в угловых блоках (почему?)
 	то высота этого блока фиксирована и чуть меньше нормальной высоты ячейки, а сам блок
 	выровнен к концу ячейки, чтобы не менял положения с изменением высоты ячейки. Пурга какая-то...
 	*/
+	margin: 0 auto;
+	width: 98%;
 	height: calc(var(--out-width)*0.3);
-	width: 100%;
 	align-self: end;
 	/* Непрозрачный фон и выше всего на 10. 
 	Тогда закрывает и компас, который всегда сверху, потому что крутится */
 	background-color: white;
 	z-index: 10;
-	font-size: var(--ltl-font-size);
+	font-size: var(--ltl1-font-size);
 }
 .messageButton {
 	display: inline-block;
-	border: solid black;
-	border-radius: calc(var(--out-width)*0.02);
-	margin: calc(var(--ltl-font-size)*0.5) var(--ltl-font-size);
-	padding: 0 0.5em;
-	min-width: fit-content;
+	width: fit-content;
 }
 .messageButton img{
-	width: calc(var(--out-width)*0.05);
-	margin: auto calc(var(--out-width)*0.025);
+	width: 1em;
+	vertical-align: baseline;
+	margin: 0 1em 0;
 }
 
 
@@ -192,18 +290,18 @@ body {
 #mobButton {
 	grid-column-start: 1;
 	grid-column-end: 3;
-	grid-row-start: 5;
+	grid-row-start: 4;
 	grid-row-end: 6;
-	text-align: left;
-	display: inherit; 
+	align-self: end;
+	
+	text-align: center;
 
-	border: solid black;
-	border-radius: calc(var(--out-width)*0.02);
-	height: fit-content;
+	display: grid; 
 	width: calc(var(--out-width)*0.5);
+	margin: 0.1em 0.1em;
 }
 #mobButton img{
-	width: calc(var(--out-width)*0.05);
+	height: var(--ltl1-font-size);
 	vertical-align: middle;
 	margin: 0 auto;
 }
@@ -222,8 +320,6 @@ body {
 	--collisionArrowLeftLitle: calc(var(--out-width)/2 - var(--collisionArrowWidthLitle)/2);
 	--center-icon-size: calc(var(--out-width)/4);
 	
-	/*border: solid red;*/
-	
 	/* Определим этот блок как containing block, потому что grod block не является таковым? 
 	А раньше являлся?*/
 	position: relative;	
@@ -231,8 +327,10 @@ body {
 	grid-column-end: 5;
 	grid-row-start: 2;
 	grid-row-end: 5;
-	margin: auto;
-
+	margin: 0 auto 0 auto;	/* Центирируется по горизонтали сам блок и вложенное, потому что наследуется */
+	/*overflow: hidden; 	 Размер этого блока определяет размер окружности картушки compassCard, но блоки внутри окружности при повороте углами вылезают за границу этого блока, и появляется полоса прокрутки. */
+	
+	/*border: solid red;*/
 }
 #compassMessage {
 	font-size: 0.5em;
@@ -245,13 +343,13 @@ body {
 	/* Я не знаю, почему так, и чем отличается этот блок от center_icon */
 	top: calc(var(--out-width)/2 - var(--center-icon-size)/2);
 	/*top: calc(50% - var(--center-icon-size)/2);*/
-	/*left: calc(var(--out-width)/2 - var(--center-icon-size)/2);*/
-	left: calc(50% - var(--center-icon-size)/2);
+	left: calc(var(--out-width)/2 - var(--center-icon-size)/2);
+	/*left: calc(50% - var(--center-icon-size)/2);*/
 
 	/*border:solid green;*/
 }
 /* стили картушки компаса */
-.compass-card {
+#compassCard {
 	border: solid black;
 	container-type: inline-size;
 	width: var(--out-width);
@@ -264,6 +362,9 @@ body {
 	height: fit-content !important;
 	width: auto !important;
 	font-size: var(--pico-font-size);
+	margin: 0 auto 0 auto;
+	
+	/*border: solid red;*/
 }
 .compass-face div {
 	/*border: solid red;*/
@@ -279,6 +380,7 @@ body {
 }
 
 .charN { 
+	/*border: solid green;*/
 }
 .charNNE { 
 	font-size: var(--ltl-font-size);
@@ -389,21 +491,20 @@ body {
 }
 
 #mobMark {
-	/*border: solid red;*/
-	
 	position: absolute;
 	height: calc(var(--out-width)/2);
-	width: var(--collisionArrowWidthSmall);
+	width: var(--font-size);
 	top: 0;
 	left: var(--collisionArrowLeftSmall);
 	
 	transform-origin: bottom center;	/* относительно чего вращать */
+
+	/*border: solid red;*/
 }
 #mobMark img{
 	position: relative;
-	top: calc(0px - var(--collisionArrowWidthSmall)*0.5);
+	top: calc(0px - var(--font-size)*0.75);
 	width: 100%;
-	vertical-align: top;
 }
 
 #nextPointDirection {

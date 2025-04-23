@@ -6,7 +6,7 @@
 
 **WARNING! No information shown or not shown by this application may serve as a basis for an action or inaction of the shipmaster.**
 
-## v. 0.2
+## v. 1
 Contents:  
 - [Features](#features)
 - - [Direction](#direction)
@@ -15,6 +15,7 @@ Contents:
 - - [Collision alarm](#collision-alarm)
 - - [Man Overboard](#man-overboard)
 - - [In screen corners](#in-screen-corners)
+- - [Client settings and kiosk mode](#client-settings-and-kiosk-mode)
 - - [Data actuality](#data-actuality)
 - [Requirements](#requirements)
 - [Dependencies](#dependencies)
@@ -97,11 +98,18 @@ One of the following values may be displayed in each of the four corners of the 
 * Next navigated point
 * none
 
-What exactly to show in each corner is determined in the application settings in the SignalK Administrative Interface.
+What exactly to show in each corner is determined in the application settings of the SignalK Administrative Interface for all clients and by a menu in the top right corner - individually for each client.
 
 A tap in the corner of the screen enlarges the display of the corresponding value. This can be useful for temporarily improving the readability of specific data in special situations.  
 ![Big corner](screenshots/bigCornerEN.png)  
 Tapping again returns the displaying to its normal size.
+
+### Client settings and kiosk mode
+In the SignalK Administrative Interface you can set which values will be displayed on the dashboard. However, these parameters can be specified individually for each client by tap in the upper right corner:  
+![Client settings](screenshots/clientSettingsEN.png)  
+These settings are stored in the client.  
+#### Kiosk mode
+If your client device does not have any controls, including a touchscreen, you can specify "Without controls" in the plugin settings in the SignalK Administrative Interface. The controls will not be displayed on the screen, and the displayed values can only be changed from the plugin settings. These changes will be shown immediately.
 
 ### Data actuality
 The application keeps track of the actuality of the incoming data. If the incoming information is older than a certain period of time (different for each value), its display is stopped. When the current information is resumed, the display is resumed as well.

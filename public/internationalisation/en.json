@@ -36,5 +36,43 @@
 
 	"dashboarNextPointTXT" : "Distance to the next point of navigate",
 	"dashboarNextPointMesMTXT" : "m.",
-	"dashboarNextPointMesKMTXT" : "km."
+	"dashboarNextPointMesKMTXT" : "km.",
+	
+	"courseTypeSelectorLabelTXT" : "Will be displayed as a Course:",
+	"courseTypeSelectorOptionsTXT" : {
+						"track" : "Course over ground (COG)",
+						"magtrack" : "Course over ground magnetic (CGM)",
+						"heading" : "Heading true (HT)",
+						"mheading" : "Heading magnetic (HM)",
+						"mheadingC" : "Heading compass (HC)"
+	},
+
+	"windTypeSelectorLabelTXT" : "Will be displayed as a Wind direction:",
+	"windTypeSelectorOptionsTXT" : {"none" : "none",
+						"wangler" : "Apparent wind (AWA)",
+						"wangletW" : "True wind through water (TWA)",
+						"wanglet" : "True wind through ground (GWA)",
+						"wdirT" : "Wind direction true (TWD)",
+						"wdirM" : "Wind direction magnetic (MWD)"
+	},
+
+	"modeSelectorLabelTXT" : "In this corner will be displayed:",
+	"modeSelectorOptionsTXT" : {"none" : "none",
+						"speed" : "Speed ower ground (SOG)",
+						"STW" : "Speed through water (STW)",
+						"DBS" : "Depth below surface (DBS)",
+						"DBK" : "Depth below keel (DBK)",
+						"DBT" : "Depth below transducer (DBT)",
+						"Engine1r" : "Engine 1 revolutions",
+						"Engine1t" : "Engine 1 temperature",
+						"Engine2r" : "Engine 2 revolutions",
+						"Engine2t" : "Engine 2 temperature",
+						"temp" : "Outside air temperature",
+						"airP" : "Outside air pressure",
+						"airH" : "Outside air relative humidity",
+						"waterT" : "Water temperature",
+						"navPoint" : "Next navigated point"
+	},
+	"modeRefreshIntervalInputTXT" : "Refresh interval, sec:",
+	"resetToDefaultButtonTXT" : "Reset to default"
 }

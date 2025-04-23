@@ -9,24 +9,8 @@
 	<script src="options.js"></script><!-- обязательно в конце, чтобы уже были упомянутые там переменные -->
 	<title>e-inkDashboardModern</title>
 </head>
-<body>
-<div id="topMessage">
-</div>
-<div id="bottomMessage">
-</div>
-<div id="leftTopBlock" onclick="bigBlock(this,'leftTopBlockBig');" style="display:none;">
-</div>
-<div id="rightTopBlock" onclick="bigBlock(this,'rightTopBlockBig');" style="display:none;">
-</div>
-<div id="leftBottomBlock" onclick="bigBlock(this,'leftBottomBlockBig');" style="display:none;">
-</div>
-<div id="rightBottomBlock" onclick="bigBlock(this,'rightBottomBlockBig');" style="display:none;">
-</div>
-<div id="bottomOnButtonMessage"><!-- Там четыре строки -->
-</div>
-<div id="mobButton">
-	<img src="img/mob.svg">
-</div>
+<body id="body"> <!-- id нужно для функции isBooblingFrom -->
+<div id="wrapper">
 <div id="compass">
 	<div id="compassMessage">
 	</div>
@@ -55,7 +39,7 @@
 			<line fill="none" stroke="black" stroke-width="3px" x1="0" y1="10" x2="0" y2="110"></line>
 			<line fill="none" stroke="black" stroke-width="3px" x1="0" y1="190" x2="0" y2="290"></line>
 		</svg>
-		<div class="compass-card" id="compassCard">
+		<div id="compassCard">
 			<div class="compass-face">
 				<div class="charN"><div class="compas-face-scale">0</div>N<br>|</div>
 				<div class="charNNE"><div class="compas-face-scale">22.5</div>NNE<br>|</div>
@@ -90,7 +74,75 @@
 		</div>
 	</div>
 </div>
-<script>
+<img id="modeMenuIcon" src="img/settings.svg">
+<form id="modeMenu" onsubmit="modeMenuSubmit(event)">
+	<div class="withBorder" style="height:50%;">
+		<div class="modeMenuBlock" style="">
+			<div style="width:80%;float:right;padding-top:0.4em;">
+				<select name="courseTypeSelector" id="courseTypeSelector" style="width:96%;font-size:120%;">
+				</select><br>
+				<label for="courseRefreshIntervalInput" style=""></label>
+				<input type="text" id="courseRefreshIntervalInput" size="2em" value="0" style="width:2em;font-size:120%;margin-top:0.5em;">
+			</div>
+			<div style="width:16%; padding: 0 0.75em 0 0.75em;text-align:right;">
+				<label for="courseTypeSelector" style=""></label>
+			</div>
+		</div>
+		<div class="modeMenuBlock" style="s">
+			<div style="width:80%;float:right;padding-top:0.4em;">
+				<select name="windTypeSelector" id="windTypeSelector" style="width:96%;font-size:120%;">
+				</select><br>
+				<label for="windRefreshIntervalInput" style=""></label>
+				<input type="text" id="windRefreshIntervalInput" size="2em" value="0" style="width:2em;font-size:120%;margin-top:0.5em;">
+			</div>
+			<div style="width:16%; padding: 0 0.75em 0 0.75em;text-align:right;">
+				<label for="windTypeSelector" style=""></label>
+			</div>
+		</div>
+	</div>
+	<div class="withBorder" style="height:30%;">
+		<div style="width:80%;float:right;padding-top:0.5em;">
+			<label for="modeSelector" style=""></label><br>
+			<select name="modeToCorner" id="modeSelector" style="width:96%;font-size:120%;">
+			</select><br>
+			<label for="modeRefreshIntervalInput" style=""></label>
+			<input type="text" id="modeRefreshIntervalInput" size="2em" value="0" style="width:2em;font-size:120%;margin-top:0.5em;">
+		</div>
+		<div style="width:16%;position:relative;top:50%;transform: translate(0, -50%);text-align: center;">
+			<input class="radio" style="margin:0 2em 2em 0;" type="radio" name="DOMidSelection" value="leftTopBlock" checked onChange="DOMidSelectionUpdOption(event)">
+			<input class="radio" style="" type="radio" name="DOMidSelection" value="rightTopBlock"  onChange="DOMidSelectionUpdOption(event)"><br>
+			<input class="radio" style="margin:0 2em 0 0;" type="radio" name="DOMidSelection" value="leftBottomBlock"  onChange="DOMidSelectionUpdOption(event)">
+			<input class="radio" style="" type="radio" name="DOMidSelection" value="rightBottomBlock"  onChange="DOMidSelectionUpdOption(event)">
+		</div>
+	</div>
+	<input type="button" id="resetToDefaultButton" value="" class="withBorder" style="" onclick="modeMenuReset();">
+	<input type="submit" value="✓" class="withBorder" style="">
+</form>
+<div id="topMessage">
+</div>
+<div id="bottomMessage">
+</div>
+<div id="leftTopBlock" onclick="bigBlock(this,'leftTopBlockBig');" style="display:none;">
+</div>
+<div id="rightTopBlock" onclick="bigBlock(this,'rightTopBlockBig');" style="display:none;">
+</div>
+<div id="leftBottomBlock" onclick="bigBlock(this,'leftBottomBlockBig');" style="display:none;">
+</div>
+<div id="rightBottomBlock" onclick="bigBlock(this,'rightBottomBlockBig');" style="display:none;">
+</div>
+<div id="MOBmessage"  class="withBorder">
+	<div class="messageButton withBorder" id="MOBmessageAddPointButton" style="width:50%;margin-right:3em;" onclick="sendMOBtoServer(true);">
+		<img src="img/mob.svg"> <span></span>
+	</div>
+	<div class="messageButton withBorder" id="MOBmessageCancelButton" style="margin:3em auto;width:25%;" onclick="sendMOBtoServer(false);closeMOBmessage();">
+		 ✘ <span></span>
+	</div>
+</div>
+<div id="mobButton"  class="withBorder">
+	<img src="img/mob.svg">
+</div>
+</div> <!-- end wrapper -->
+<script>"use strict" 
 //compassCard.style.transform = 'rotate(30deg)';
 //console.log(displayData);
 var mobMarkerJSON;	// информация о режиме MOB: маркер из GaladrilMap
@@ -102,21 +154,27 @@ var minFreshInterval = {"object": null, "value": 999999999999};	// объект 
 var testSKresponce = {"summ": 0, "cnt": 0};
 // Переменные со строками подписей определяются в internationalisation.js
 // Переменные - параметры определяются в options.js
-// Завершающая нициализация
-var instanceSelf = getCookie('e-inkВashboardModernInstance');	// идентификатор экземпляра программы
+// Завершающая инициализация
+const savedDisplayData = storageHandler.restore('displayData');
+//console.log('savedDisplayData:',savedDisplayData);
+if(savedDisplayData) {
+	// Сведения о моторах могут быть не сразу, поэтому обновляем их хотя бы при каждой перезагрузке
+	if(displayData.propulsionPaths) savedDisplayData.propulsionPaths = displayData.propulsionPaths;
+	else delete savedDisplayData.propulsionPaths;
+	displayData = savedDisplayData;	// при этом, если данные разных версий, _необходимо_ воспользоваться кнопкой "восстановить умолчальные"
+};
+//console.log('displayData:',displayData);
+var instanceSelf = storageHandler.restore('instanceSelf');	// идентификатор экземпляра программы
+//console.log('instanceSelf=',instanceSelf);
 if(!instanceSelf) {
 	instanceSelf = generateUUID();
-	let expires =  new Date();
-	expires.setTime(expires.getTime() + (24*60*60*1000)); 	// протухнет через сутки
-	document.cookie = "e-inkВashboardModernInstance="+instanceSelf+"; expires="+expires+"; path=/; SameSite=Lax;";
-}
+	storageHandler.save('instanceSelf');
+};
 
-bottomOnButtonMessage.style.display = 'none';
-mobButton.addEventListener('click',function (event){
-	event.stopPropagation();	// чтобы оно не дошло до body, на который раньше успело навеситься closebottomOnButtonMessage. Что странно...
-	MOBalarm();
-});
+MOBmessageInit();	// Окно сообщения MOB
+modeMenuInit();	// Окно меню параметров
 
+// Ветер
 if(displayData.wangle && displayData.wangle.trueWind) {	// если ветер истинный
 	compassCard.appendChild(windSVGimage);	// переставим символ ветра в картушку
 }
@@ -171,7 +229,7 @@ if(minFreshInterval.value < 999999999999){	// может не быть ни од
 	minFreshInterval.object = window.setInterval(chkAllTPV, minFreshInterval.value);
 };
 /*/
-minFreshInterval.value = 10000;
+minFreshInterval.value = 10000;	// 1/1000 sec
 minFreshInterval.object = window.setInterval(chkAllTPV, minFreshInterval.value);
 console.log("Data freshness check started");
 
@@ -223,7 +281,17 @@ for(let props of SKdata.updates){
 					console.log('Property',tpvName,'is interpreted as null instead 0');
 					prop.value = null;
 				}
-			}
+			};
+			// Сохраним человеческие названия моторов для упоминания их в интерфейсе
+			// Но если названия поменяются - упс.
+			if(tpvName.startsWith('propLabel')) {
+				//console.log('Название мотора=',prop.value);
+				if(!displayData[tpvName].value){
+					displayData[tpvName].value = prop.value;
+					storageHandler.save('displayData');
+					//console.log('Название мотора=',prop.value,'saved');
+				};
+			};
 
 			// Приведение к нормальным размерностям и запись в буфер
 			//console.log('[websocketOnMessage] tpvName=',tpvName,'prop.path=',prop.path,'prop.value:',prop.value,'displayData[tpvName].multiplicator)=',displayData[tpvName].multiplicator);
@@ -291,7 +359,7 @@ display(changedTPV);	// Собственно рисование данных
 function websocketOnClose(event) {
 /**/
 if (event.wasClean) {
-	console.log(`Websocket closed cleary with cide ${event.code} by reason: ${event.reason}`);
+	console.log(`Websocket closed cleary with code ${event.code} by reason: ${event.reason}`);
 } 
 else {	// сервер убил процесс или сеть недоступна. Обычно в этом случае event.code 1006
 	console.log(`Websocket closed: connection broken with code ${event.code} by reason ${event.reason}`);
