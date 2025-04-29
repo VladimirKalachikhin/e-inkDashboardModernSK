@@ -31,7 +31,7 @@ body {
 	/*grid-template-rows: calc(var(--out-width)*0.05) calc(var(--out-width)*0.3) calc(var(--out-width)*0.3) calc(var(--out-width)*0.3) calc(var(--out-width)*0.05);*/
 
 	/* Нам нужно избавиться от полос прокрутки, которая появляется из-за расширения блока compass 
-	когда углы блоков подписей картушки вылезают за его границы.
+	когда углы center_marc вылезают за его границы.
 	При этом overflow: hidden; именно в этом блоке делает его ширину 100% viewport, а если
 	указать overflow: hidden; в body - то ширина body становится меньше viewport и переменной.
 	Фигня какая-то...

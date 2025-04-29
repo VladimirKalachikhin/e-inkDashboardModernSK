@@ -1,9 +1,27 @@
 /*
 display()
+displayNextPoint()
 displayON()
 displayOFF()
 
-realWindSymbolUpdate(direction=0,speed=0)
+realWindSymbolUpdate(speed=null)
+upHline(posX)
+downHline(posX)
+
+MOBmessageInit()
+MOBalarm()
+closeMOBmessage()
+sendMOBtoServer(status=true)
+MOBtoGeoJSON(MOBdata)	Переделывает объект MOB из формата SignalK notifications.mob в mobMarkerJSON: Leaflet GeoJSON для GaladrielMap
+GeoJSONtoMOB(mobMarkerJSON,status,label='galadrielmap_sk')	Переделывает Leaflet GeoJSON мультислоя mobMarker в delta формата SignalK для MOB 
+
+modeMenuInit()
+selectOption(DOMid)
+DOMidSelectionUpdOption(event)
+modeMenuOpen()
+modeMenuClose()
+modeMenuReset()
+modeMenuSubmit(event)
 
 isValueNull(valueName,value)
 chkTPV(tpvName,checksTPV)
@@ -12,16 +30,14 @@ chkAllTPV()
 bigBlock(block,bigStyleName)
 updBottomMessages()
 
-MOBalarm()
-closeMOBmessage()
-sendMOBtoServer(status=true)
-
 bearing(latlng1, latlng2)
 equirectangularDistance(from,to)
 
 generateUUID()
+isBooblingFrom(event,id)
+
+storageHandler
 */
-var bottomMessages = {};
 
 function display(changedTPV){
 /* Функция, которая показвает картинку на основе tpv. 
@@ -49,10 +65,22 @@ if(!changedTPV) changedTPV = Object.keys(displayData);
 //console.log('[display] changedTPV:',changedTPV);
 //console.log('[display] tpv:',tpv);
 /* FOR TEST*/
-//if(!tpv.heading) tpv.heading = {};
+//if((testFlag === true) && !tpv.heading) {
+//	console.log('tpv.heading created');
+//	tpv.heading = {"value": 95.0000000216913,"timestamp": 1745765598606};
+//	testFlag = 0;
+//};
 //changedTPV.push('heading');
 //tpv.heading.value += (5 + Math.floor(Math.random() * 25));
 //tpv.heading.value += 45;
+//if(testFlag > 10){
+//	delete tpv.heading;
+//	console.log('tpv.heading deleted');
+//	testFlag = false;
+//}
+//else{
+//	testFlag += 1;
+//};
 //if(tpv.track) tpv.heading.value = tpv.track.value + 45;
 /* END FOR TEST*/
 byChangedTPV: for(let tpvName of changedTPV){
@@ -97,6 +125,12 @@ byChangedTPV: for(let tpvName of changedTPV){
 					//console.log('track=',tpv.track.value,'heading=',tpv.heading.value,'track-heading=',Math.max(tpv.track.value,tpv.heading.value)-Math.min(tpv.track.value,tpv.heading.value));
 					center_marc.style.transform = `rotate(${tpv.track.value-tpv.heading.value}deg)`;
 				}
+				else{	// heading может внезапно исчезнуть или протухнуть, поэтому картушку надо вернуть
+					//console.log('no heading, but must be. center_marc.style.transform=',center_marc.style.transform)
+					if(center_marc.style.transform && center_marc.style.transform != 'none'){
+						center_marc.style.transform = 'none';
+					};
+				}
 			}
 			compassCard.style.transform = `rotate(${360-tpv.track.value}deg)`;
 			topMessage.innerHTML = `${displayData.track.label} ${tpv.track.value.toFixed(displayData.track.precision)}°`;
@@ -117,7 +151,9 @@ byChangedTPV: for(let tpvName of changedTPV){
 	case 'heading':
 		if(tpv.heading && tpv.heading.value != null && tpv.heading.value != undefined) {
 			if(displayData.heading.headingDirection) {
-				center_icon.style.transform = `rotate(0deg)`;
+				if(center_icon.style.transform && center_icon.style.transform != 'none'){
+					center_icon.style.transform = 'none';
+				};
 			}
 			else {
 				if(tpv.track && tpv.track.value != null && tpv.track.value != undefined) {
@@ -129,7 +165,9 @@ byChangedTPV: for(let tpvName of changedTPV){
 			updBottomMessages();	// показывает нижнее сообщение
 		}
 		else {
-			center_icon.style.transform = `rotate(0deg)`;
+			if(center_icon.style.transform && center_icon.style.transform != 'none'){
+				center_icon.style.transform = 'none';
+			};
 			delete bottomMessages.heading;
 			updBottomMessages();	// показывает нижнее сообщение
 		}
@@ -146,8 +184,8 @@ byChangedTPV: for(let tpvName of changedTPV){
 /* END FOR TEST*/
 		if(tpv.wspeed && tpv.wspeed.value != null && tpv.wspeed.value != undefined) {
 			if(tpv.wangle && tpv.wangle.value != null && tpv.wangle.value != undefined) {
-				//console.log('wind direction=',tpv.wangle.value,'wind speed=',tpv.wspeed.value);
-				windSVGimage.setAttribute("transform", `rotate(${tpv.wangle.value-90})`);
+				//console.log('wind direction=',tpv.wangle.value,'wind speed=',tpv.wspeed.value,displayData.wangle);
+				windSVGimage.setAttribute("transform", `rotate(${tpv.wangle.value-90})`);	// исходно картинка горизонтальная, я ветер считается от center_icon
 			}
 			else {
 				realWindSymbolViewUpdate(null);
@@ -197,16 +235,16 @@ byChangedTPV: for(let tpvName of changedTPV){
 					arrow.style.display = null;
 					arrow.style.transform = `rotate(${collision[1].bearing}deg)`;
 					//console.log(arrow);
-					if(collision[1].dist < minDist) {
+					if(collision[1].dist <= minDist) {
 						//console.log('Ближайший');
 						nearestDist = collision[1].dist
 					}
-					else if((collision[1].dist > minDist) && (collision[1].dist < (minDist+step))) {
+					else if((collision[1].dist > minDist) && (collision[1].dist <= (minDist+step))) {
 						//console.log('Близкий');
 						arrow.style.width = 'var(--collisionArrowWidthNormal)';
 						arrow.style.left = 'var(--collisionArrowLeftNormal)';
 					}
-					else if((collision[1].dist > (minDist+step)) && (collision[1].dist < (minDist+2*step))) {
+					else if((collision[1].dist > (minDist+step)) && (collision[1].dist <= (minDist+2*step))) {
 						//console.log('Средний');
 						arrow.style.width = 'var(--collisionArrowWidthSmall)';
 						arrow.style.left = 'var(--collisionArrowLeftSmall)';
@@ -1086,7 +1124,7 @@ case "mheadingC":
 	break;
 };
 // Ветер
-let trueWind = 'false';
+let trueWind = false;
 switch(windTypeSelector.value){
 case "none":
 	for(let tpvName in displayData){
@@ -1577,11 +1615,11 @@ function generateUUID() {
     });
 }; // end function generateUUID
 
-
+/*
 function isBooblingFrom(event,id){
-/* Проверяет, всплывает ли событие event через объект с id 
-Нужно, чтобы объект, на котором зарегистрировано событие, тоже имел id
-*/
+// Проверяет, всплывает ли событие event через объект с id 
+//Нужно, чтобы объект, на котором зарегистрировано событие, тоже имел id
+//
 if(event.target.id == id) return true;	// событие вызвано собственно на искомом объекте
 let currentTargetID = event.currentTarget.id;
 if(!currentTargetID) return null;
@@ -1593,7 +1631,7 @@ do{
 	current = current.parentElement;
 } while(true);
 }; // end function isBooblingFrom
-
+*/
 
 const storageHandler = {
 	_storageName : 'DashboardModernSKOptions',

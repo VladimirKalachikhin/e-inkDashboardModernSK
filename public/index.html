@@ -9,7 +9,8 @@
 	<script src="options.js"></script><!-- обязательно в конце, чтобы уже были упомянутые там переменные -->
 	<title>e-inkDashboardModern</title>
 </head>
-<body id="body"> <!-- id нужно для функции isBooblingFrom -->
+<!--<body id="body">  id нужно для функции isBooblingFrom, но она не используется -->
+<body>
 <div id="wrapper">
 <div id="compass">
 	<div id="compassMessage">
@@ -150,6 +151,11 @@ var mobPosition=null;	// координаты текущего маркера MO
 var tpv = {};
 var socket;
 var minFreshInterval = {"object": null, "value": 999999999999};	// объект setInterval для периодической проверки свежести имеющихся данных
+var bottomMessages = {};
+
+/* FOR TEST*/
+//var testFlag = true;
+/* END FOR TEST*/
 
 var testSKresponce = {"summ": 0, "cnt": 0};
 // Переменные со строками подписей определяются в internationalisation.js
@@ -177,7 +183,7 @@ modeMenuInit();	// Окно меню параметров
 // Ветер
 if(displayData.wangle && displayData.wangle.trueWind) {	// если ветер истинный
 	compassCard.appendChild(windSVGimage);	// переставим символ ветра в картушку
-}
+};
 
 // Поехали
 const uri = `ws://${document.location.host}/signalk/v1/stream?subscribe=none`; 	// подписываться будем отдельно
@@ -340,9 +346,11 @@ for(let props of SKdata.updates){
 			}
 			/*/// END FOR TEST
 
+			//if(tpvName == 'heading') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
 			// Проверка на свежесть, каждые пришедшие данные
 			chkTPV(tpvName,checksTPV);
 
+			//if(tpvName == 'heading') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
 			//if(tpvName == 'wangle') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName]);
 			//if(tpvName == 'nextPoint') console.log('[websocketOnMessage] tpvName=',tpvName,'tpv[tpvName]:',tpv[tpvName],'tpv.position:',JSON.stringify(tpv.position),SKdata);
 		}
