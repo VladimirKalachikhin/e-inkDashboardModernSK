@@ -276,7 +276,6 @@ const options = app.readPluginOptions().configuration;
 //app.debug('options:',options);
 optionsjs = `// Automaticaly created file
 // типы данных, которые, собственно, будем показывать 
-// javascript допускает комментарии в json?
 var displayData = {
 	"maxRefreshInterval" : ${options.trackProp.maxRefreshInterval},
 	"pluginStatus" : {	// состояние серверной части
@@ -331,7 +330,7 @@ else if(options.trackProp.feature.includes('CGM')) {
 		"menuItem" : "magtrack"
 	},
 	"heading" : {	// heading, курс
-		"signalkPath": "navigation.dashboardMagCourseTXT",
+		"signalkPath": "navigation.headingMagnetic",
 		"label": i18n.dashboardMagHeadingTXT,	// наименование переменной из internationalisation.js
 		"precision": 0,	// точность показываемой цифры, символов после запятой
 		"multiplicator": ${180/Math.PI}, 	// на что нужно умножить значение для показа
@@ -599,7 +598,7 @@ if(options.leftBottomBlock.feature !== 'none') buildOptions(options.leftBottomBl
 /* Right bottom value */
 if(options.rightBottomBlock.feature !== 'none') buildOptions(options.rightBottomBlock,'rightBottomBlock');
 
-// закрываем JSON
+// завершаем объект
 optionsjs += `
 };
 `;
@@ -855,7 +854,7 @@ else if(option.feature.includes('ater temperature')) {	/* температура
 	},
 `;
 }
-else if(option.feature.includes('navigated point')) {	/* следующая путевая точка на круге и в углу */
+else if(option.feature.includes('navigated point')) {	/* следующая путевая точка на круге и в углу. При этом, nextPoint уже указана выше, и указание здесь перепишет его */
 	optionsjs += `
 	"nextPoint" : {
 		"signalkPath": "navigation.course.nextPoint",
