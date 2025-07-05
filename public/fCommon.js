@@ -174,7 +174,7 @@ byChangedTPV: for(let tpvName of changedTPV){
 		break;
 	case 'wangle':
 		// Ветер у нас нормальный, т.е., относительно судна.
-		// Реально значёт ветра будет перерсован, когда есть и wangle и wspeed
+		// Реально значёк ветра будет перерсован, когда есть и wangle и wspeed
 		// т.е., сначала придёт что-то одно, потом, когда придёт следующее - 
 		// значёк будет нарисован, но с прошлым значением другого.
 		// Эмулятор SKsim сперва присылает угол, а потом скорость
@@ -524,7 +524,8 @@ let windMark = windSVG.getElementById('wMark');
 if(speed === null){
 	while (windMark.firstChild) {	// удалим все символы из значка
 		windMark.removeChild(windMark.firstChild);
-	}
+	};
+	oldWind.w25cnt = null; oldWind.w5cnt = null; oldWind.w2dt5cnt = null;
 	return;
 }
 
@@ -643,7 +644,7 @@ for( let i=2; i--; ){
 };
 return posX;
 }; //end function downHline
-} // end function realWindSymbolUpdate
+} // end function realWindSymbolViewUpdate
 
 function MOBmessageInit(){
 /* Окно сообщения MOB */
@@ -662,8 +663,9 @@ MOBmessageCancelButton.querySelector('span').innerHTML = i18n.dashboardMOBbutton
 
 function MOBalarm(){
 if(tpv.mob && tpv.mob.value && (tpv.mob.value.state != "normal")){	// режим MOB есть
-	if(mobPosition) MOBmessageAddPointButton.style.display = '';
-	else MOBmessageAddPointButton.style.display = 'none';
+	//if(mobPosition) MOBmessageAddPointButton.style.display = '';	// Почему можно добавить точку, только если есть текущая? Тогда мы не сможем инициировать свой MOB, если есть MOB от SART, который мы игнорируем.
+	//else MOBmessageAddPointButton.style.display = 'none';
+	MOBmessageAddPointButton.style.display = '';
 	MOBmessage.style.display = '';
 	document.body.addEventListener('click',(event)=>{closeMOBmessage();},{'once':true});
 }
@@ -685,7 +687,7 @@ if(status) {	// нужно открыть режим "человек за бор
 	// Есть координаты
 	let coordinates = [];	// если нет координат, то Leaflet такую точку просто не показывает.
 	if(tpv.position && tpv.position.value && tpv.position.value.latitude && tpv.position.value.longitude) coordinates = [tpv.position.value.longitude,tpv.position.value.latitude];
-	if(mobMarkerJSON && mobMarkerJSON.state != 'normal'){	// передали точки, надо добавить
+	if(mobMarkerJSON && mobMarkerJSON.state != 'normal'){	// имеются точки, надо добавить
 		mobMarkerJSON.features.push({
 			"type": "Feature",
 			"geometry": {
@@ -871,6 +873,7 @@ modeMenuIcon.addEventListener('click',function (event){
 let selected=false;
 // Путевой угол
 courseTypeSelector.labels[0].innerHTML = `${i18n.courseTypeSelectorLabelTXT}`;
+courseTypeSelector.options.length = 0;
 for(let option in i18n.courseTypeSelectorOptionsTXT){
 	if(displayData.track && displayData.track.menuItem == option) selected=true;
 	else selected=false;
@@ -880,6 +883,7 @@ courseRefreshIntervalInput.labels[0].innerHTML = `${i18n.modeRefreshIntervalInpu
 courseRefreshIntervalInput.value = displayData.maxRefreshInterval || 0;
 // Ветер
 windTypeSelector.labels[0].innerHTML = `${i18n.windTypeSelectorLabelTXT}`;
+windTypeSelector.options.length = 0;
 for(let option in i18n.windTypeSelectorOptionsTXT){
 	if(displayData.wangle && displayData.wangle.menuItem == option) selected=true;
 	else selected=false;
@@ -899,6 +903,7 @@ for(tpvName in displayData){
 };
 //console.log('[modeMenuInit] DOMid=',DOMid,'tpvName=',tpvName);
 modeSelector.labels[0].innerHTML = `${i18n.modeSelectorLabelTXT}`;
+modeSelector.options.length = 0;
 for(let option in i18n.modeSelectorOptionsTXT){
 	//console.log('[modeMenuInit] option=',option,i18n.modeSelectorOptionsTXT[option]);
 	if(option.startsWith('Engine')) {

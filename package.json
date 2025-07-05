@@ -1,6 +1,6 @@
 {
   "name": "e-inkdashboardmodern",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "E-InkDashboardModern SignalK Edition is a aimed at devices with e-ink screen web  application that shows in the browser the main parameters of the ship's movement",
   "main": "index.js",
   "author": "Vladimir Kalachikhin",
